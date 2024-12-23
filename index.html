@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solana Account Explorer</title>
     <style>
-        body {
+         body {
             font-family: 'Roboto Mono', monospace;
             margin: 0;
             background-color: #050a13;
@@ -85,7 +85,8 @@
            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
          }
 
-         .wallet-info {
+
+        .wallet-info {
             margin-top: 25px;
             background-color: #102538;
             padding: 25px;
@@ -296,89 +297,89 @@
 
     </div>
     <script>
-        const apiUrl = "https://api.devnet.solana.com";
+          const apiUrl = "https://api.devnet.solana.com";
         const LAMPORTS_PER_SOL = 1000000000;
         let allTransactions = [];
         let currentPage = 1;
-        const transactionsPerPage = 10;
+         const transactionsPerPage = 10;
           let currentTransactionSignature = null;
 
-           async function fetchAccountDetails(walletAddressFromUrl = null) {
-            const walletAddress = walletAddressFromUrl || document.getElementById('walletAddress').value;
+        async function fetchAccountDetails(walletAddressFromUrl = null) {
+             const walletAddress = walletAddressFromUrl || document.getElementById('walletAddress').value;
              const walletInfoDiv = document.getElementById('wallet-info');
-            const errorMessageDiv = document.getElementById('error-message');
-             const tokenBalancesDiv = document.getElementById('token-balances');
-            const transactionHistoryDiv = document.getElementById('transaction-history');
-              const paginationDiv = document.getElementById('pagination');
+             const errorMessageDiv = document.getElementById('error-message');
+            const tokenBalancesDiv = document.getElementById('token-balances');
+             const transactionHistoryDiv = document.getElementById('transaction-history');
+             const paginationDiv = document.getElementById('pagination');
              const transactionDetailsDiv = document.getElementById('transaction-details');
 
-           walletInfoDiv.innerHTML = '';
-           errorMessageDiv.textContent = '';
-             tokenBalancesDiv.innerHTML = '';
-            transactionHistoryDiv.innerHTML = '';
-           paginationDiv.innerHTML = '';
-            transactionDetailsDiv.innerHTML = "";
+            walletInfoDiv.innerHTML = '';
+            errorMessageDiv.textContent = '';
+            tokenBalancesDiv.innerHTML = '';
+             transactionHistoryDiv.innerHTML = '';
+            paginationDiv.innerHTML = '';
+             transactionDetailsDiv.innerHTML = "";
              currentTransactionSignature = null;
 
             if (!walletAddress) {
-                 errorMessageDiv.textContent = "Please enter a wallet or transaction address.";
-                 updateUrl('');
-                 return;
-            }
+                errorMessageDiv.textContent = "Please enter a wallet or transaction address.";
+                updateUrl('');
+                return;
+           }
 
             const isWalletAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress);
              if (isWalletAddress) {
                  try {
                     // Fetch SOL balance and general account info
-                     const accountInfo = await fetchAccountInfo(walletAddress);
+                    const accountInfo = await fetchAccountInfo(walletAddress);
                      if (accountInfo) {
                          displayWalletInfo(accountInfo, walletAddress);
                     }
 
-                    // Fetch token balances
+                     // Fetch token balances
                      const tokenBalances = await fetchTokenBalances(walletAddress);
                      if (tokenBalances) {
                         displayTokenBalances(tokenBalances);
-                    }
+                     }
 
-                    // Fetch all transactions
+                     // Fetch all transactions
                      allTransactions = await fetchAllTransactions(walletAddress);
                      renderTransactions(walletAddress);
-                      updateUrl(walletAddress);
+                    updateUrl(walletAddress);
 
-                 } catch (error) {
-                     errorMessageDiv.textContent = `Error: ${error.message}`;
-                 }
+               } catch (error) {
+                    errorMessageDiv.textContent = `Error: ${error.message}`;
+                }
             } else {
-                 try {
-                    // Handle transaction hash
+                try {
+                     // Handle transaction hash
                      const transactionDetails = await fetchTransactionDetails(walletAddress);
-                     if (transactionDetails) {
-                          displayTransactionDetails(transactionDetails);
-                           updateUrl(walletAddress);
-                       } else {
-                           errorMessageDiv.textContent = `No transaction found for address: ${walletAddress}`;
-                           updateUrl('');
-                        }
+                    if (transactionDetails) {
+                       displayTransactionDetails(transactionDetails);
+                        updateUrl(walletAddress);
+                     } else {
+                        errorMessageDiv.textContent = `No transaction found for address: ${walletAddress}`;
+                       updateUrl('');
+                   }
                 } catch (error) {
-                      errorMessageDiv.textContent = `Error: ${error.message}`;
+                     errorMessageDiv.textContent = `Error: ${error.message}`;
                      updateUrl('');
                 }
            }
         }
 
-          async function fetchAccountInfo(walletAddress) {
+         async function fetchAccountInfo(walletAddress) {
             const requestBody = {
                 jsonrpc: "2.0",
                 id: 1,
                 method: "getAccountInfo",
                 params: [
                     walletAddress,
-                    {
+                   {
                         encoding: "jsonParsed"
                     }
                 ]
-            };
+           };
              try {
                 const response = await fetch(apiUrl, {
                     method: "POST",
@@ -388,66 +389,66 @@
                     body: JSON.stringify(requestBody)
                 });
 
-                if (!response.ok) {
+                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(`RPC Error: ${data.error.message}`);
+                 const data = await response.json();
+                 if (data.error) {
+                     throw new Error(`RPC Error: ${data.error.message}`);
                 }
-                return data.result.value;
+               return data.result.value;
             } catch (error) {
                 console.error("Failed to fetch account info:", error);
                 return null;
             }
-        }
+       }
 
-        function displayWalletInfo(accountInfo, walletAddress) {
-             const walletInfoDiv = document.getElementById('wallet-info');
-           let solBalance = 0;
-           let isNative = false;
-               if (accountInfo && accountInfo.lamports) {
-                   solBalance = accountInfo.lamports / 1000000000;
-                   isNative = accountInfo && accountInfo.data && accountInfo.data.parsed && accountInfo.data.parsed.info && accountInfo.data.parsed.info.isNative;
+         function displayWalletInfo(accountInfo, walletAddress) {
+           const walletInfoDiv = document.getElementById('wallet-info');
+             let solBalance = 0;
+            let isNative = false;
+                 if (accountInfo && accountInfo.lamports) {
+                     solBalance = accountInfo.lamports / 1000000000;
+                    isNative = accountInfo && accountInfo.data && accountInfo.data.parsed && accountInfo.data.parsed.info && accountInfo.data.parsed.info.isNative;
                  }
            let lastTransactionTime = "N/A";
 
                 fetchTransactionHistory(walletAddress).then(transactions =>{
-                   if (transactions && transactions.length > 0) {
-                           const lastTransaction = transactions[0];
-                            lastTransactionTime = lastTransaction && lastTransaction.blockTime ? new Date(lastTransaction.blockTime * 1000).toLocaleString() : "N/A";
-                              walletInfoDiv.innerHTML = `
+                    if (transactions && transactions.length > 0) {
+                          const lastTransaction = transactions[0];
+                           lastTransactionTime = lastTransaction && lastTransaction.blockTime ? new Date(lastTransaction.blockTime * 1000).toLocaleString() : "N/A";
+                             walletInfoDiv.innerHTML = `
                                   <h2>Wallet Information</h2>
+                                     <div class="info-item">
+                                       <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
+                                   </div>
                                     <div class="info-item">
-                                        <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
-                                    </div>
-                                   <div class="info-item">
                                          <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
                                    </div>`;
-                     } else {
-                            walletInfoDiv.innerHTML = `
+                       } else {
+                              walletInfoDiv.innerHTML = `
                                  <h2>Wallet Information</h2>
-                                   <div class="info-item">
+                                     <div class="info-item">
                                         <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
-                                   </div>
-                                  <div class="info-item">
-                                       <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
+                                     </div>
+                                     <div class="info-item">
+                                         <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
                                    </div>`;
                         }
-              }).catch(error => {
-                   walletInfoDiv.innerHTML = `
-                       <h2>Wallet Information</h2>
+                }).catch(error => {
+                      walletInfoDiv.innerHTML = `
+                        <h2>Wallet Information</h2>
                             <div class="info-item">
-                                   <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
+                                    <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
                            </div>
-                            <div class="info-item">
-                               <span class="label">Last Transaction Time:</span>  Error getting last transaction
+                             <div class="info-item">
+                                <span class="label">Last Transaction Time:</span>  Error getting last transaction
                            </div>`;
-               })
+                })
         }
 
-         async function fetchTokenBalances(walletAddress) {
-             const requestBody = {
+        async function fetchTokenBalances(walletAddress) {
+            const requestBody = {
                 jsonrpc: "2.0",
                 id: 1,
                 method: "getTokenAccountsByOwner",
@@ -458,57 +459,54 @@
                     },
                     {
                         encoding: "jsonParsed"
-                    }
+                   }
                 ]
             };
-
              try {
-                 const response = await fetch(apiUrl, {
+                const response = await fetch(apiUrl, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                       "Content-Type": "application/json"
                     },
                     body: JSON.stringify(requestBody)
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+                   throw new Error(`HTTP error! Status: ${response.status}`);
+                 }
 
                  const data = await response.json();
                 if (data.error) {
-                     throw new Error(`RPC Error: ${data.error.message}`);
-                }
-                 return data.result.value;
-             } catch (error) {
-                 console.error("Failed to fetch token balances:", error);
-                return null;
-
+                    throw new Error(`RPC Error: ${data.error.message}`);
+                 }
+                return data.result.value;
+           } catch (error) {
+               console.error("Failed to fetch token balances:", error);
+               return null;
            }
         }
 
-        function displayTokenBalances(tokenAccounts) {
-           const tokenBalancesDiv = document.getElementById('token-balances');
-            if (!tokenAccounts || tokenAccounts.length === 0) {
+         function displayTokenBalances(tokenAccounts) {
+            const tokenBalancesDiv = document.getElementById('token-balances');
+             if (!tokenAccounts || tokenAccounts.length === 0) {
                 tokenBalancesDiv.innerHTML = `<p>No Tokens held</p>`;
-                return;
+               return;
             }
-           let tokensHTML = `<h2>Token Balances</h2>`;
-            for (const account of tokenAccounts) {
-                const tokenInfo = account.account.data.parsed.info;
-                const amount = tokenInfo.tokenAmount.uiAmountString;
+            let tokensHTML = `<h2>Token Balances</h2>`;
+             for (const account of tokenAccounts) {
+               const tokenInfo = account.account.data.parsed.info;
+               const amount = tokenInfo.tokenAmount.uiAmountString;
                 const mint = tokenInfo.mint;
-                tokensHTML += `<div class="token-item">
+                 tokensHTML += `<div class="token-item">
                                  <span class="label">Mint:</span> ${mint} <br>
-                                  <span class="label">Balance:</span> ${amount}
-                            </div>`;
-            }
-
-           tokenBalancesDiv.innerHTML = tokensHTML;
+                                   <span class="label">Balance:</span> ${amount}
+                             </div>`;
+             }
+            tokenBalancesDiv.innerHTML = tokensHTML;
         }
 
          async function fetchTransactionHistory(walletAddress) {
-            const requestBody = {
+           const requestBody = {
                 jsonrpc: "2.0",
                 id: 1,
                 method: "getSignaturesForAddress",
@@ -518,7 +516,7 @@
                         limit: 5
                     }
                 ]
-            };
+           };
 
             try {
                 const response = await fetch(apiUrl, {
@@ -527,56 +525,52 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify(requestBody)
-                });
+                 });
 
-
-                if (!response.ok) {
+                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                const data = await response.json();
-
-                if (data.error) {
+                 const data = await response.json();
+                 if (data.error) {
                     throw new Error(`RPC Error: ${data.error.message}`);
                 }
-
-                const transactionSignatures = data.result;
+                 const transactionSignatures = data.result;
 
                 if (!transactionSignatures || transactionSignatures.length === 0) {
                    return [];
                 }
-                // Fetch transaction details for each signature
+                 // Fetch transaction details for each signature
                 const transactions = await Promise.all(transactionSignatures.map(async (sig) => {
                     return await fetchTransactionDetails(sig.signature);
-                }));
+                 }));
 
                 return transactions;
-
             } catch (error) {
-                console.error("Failed to fetch transaction history:", error);
-                return null;
+               console.error("Failed to fetch transaction history:", error);
+               return null;
             }
         }
 
+
          async function fetchAllTransactions(walletAddress, before = null) {
-            let allTransactions = [];
-           let hasMore = true;
+             let allTransactions = [];
+            let hasMore = true;
              let beforeSignature = before;
             while (hasMore) {
-                 const requestBody = {
+                const requestBody = {
                     jsonrpc: "2.0",
-                    id: 1,
-                    method: "getSignaturesForAddress",
-                    params: [
+                     id: 1,
+                   method: "getSignaturesForAddress",
+                   params: [
                         walletAddress,
                         {
-                            limit: 100,
+                           limit: 100,
                             before: beforeSignature
                         }
-                   ]
-                };
-
+                    ]
+               };
                  try {
-                    const response = await fetch(apiUrl, {
+                     const response = await fetch(apiUrl, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -585,43 +579,43 @@
                     });
 
                     if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
+                         throw new Error(`HTTP error! Status: ${response.status}`);
+                     }
                     const data = await response.json();
-                    if (data.error) {
+                     if (data.error) {
                          throw new Error(`RPC Error: ${data.error.message}`);
-                   }
-                   const transactionSignatures = data.result;
+                    }
+                    const transactionSignatures = data.result;
 
                    if (!transactionSignatures || transactionSignatures.length === 0) {
                         hasMore = false;
-                        continue;
-                    }
-                     const transactionDetailsPromises = transactionSignatures.map(sig => fetchTransactionDetails(sig.signature));
-                    const transactionDetails = await Promise.all(transactionDetailsPromises);
-
+                         continue;
+                   }
+                   const transactionDetailsPromises = transactionSignatures.map(sig => fetchTransactionDetails(sig.signature));
+                   const transactionDetails = await Promise.all(transactionDetailsPromises);
                      allTransactions = allTransactions.concat(transactionDetails);
-                    beforeSignature = transactionSignatures[transactionSignatures.length - 1].signature;
-               } catch (error) {
-                   console.error("Failed to fetch all transactions:", error);
-                      hasMore = false;
+                     beforeSignature = transactionSignatures[transactionSignatures.length - 1].signature;
+                 } catch (error) {
+                      console.error("Failed to fetch all transactions:", error);
+                       hasMore = false;
                 }
-            }
-           return allTransactions;
+           }
+            return allTransactions;
         }
 
+
         async function fetchTransactionDetails(signature) {
-             const requestBody = {
+           const requestBody = {
                 jsonrpc: "2.0",
                 id: 1,
                 method: "getTransaction",
                 params: [
                     signature,
-                    {
-                        encoding: "jsonParsed"
+                   {
+                       encoding: "jsonParsed"
                     }
-                ]
-            };
+               ]
+           };
 
             try {
                 const response = await fetch(apiUrl, {
@@ -632,266 +626,253 @@
                     body: JSON.stringify(requestBody)
                 });
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+                   throw new Error(`HTTP error! Status: ${response.status}`);
+               }
                 const data = await response.json();
-                if (data.error) {
+               if (data.error) {
                     throw new Error(`RPC Error: ${data.error.message}`);
                 }
                 return data.result;
             } catch (error) {
-                console.error("Failed to fetch transaction details:", error);
+                 console.error("Failed to fetch transaction details:", error);
                 return null;
             }
         }
 
-
-         function displayTransactionDetails(results) {
-           const transactionDetailsDiv = document.getElementById('transaction-details');
-            transactionDetailsDiv.innerHTML = "";
-             if (!results || !results.transaction || !results.meta ) {
-                  transactionDetailsDiv.innerHTML = `<p>Invalid transaction data</p>`;
+          function displayTransactionDetails(results) {
+             const transactionDetailsDiv = document.getElementById('transaction-details');
+             transactionDetailsDiv.innerHTML = "";
+              if (!results || !results.transaction || !results.meta ) {
+                   transactionDetailsDiv.innerHTML = `<p>Invalid transaction data</p>`;
                     return;
-             }
+               }
             const blockTime = new Date(results.blockTime * 1000).toUTCString();
-
-             let sender = 'N/A';
+            let sender = 'N/A';
            let receiver ='N/A';
             let amount = 'N/A';
 
-               if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
-                    for (const instruction of results.transaction.message.instructions) {
-                        if (instruction.parsed && instruction.parsed.type === "transfer") {
-                                if(instruction.parsed.info && instruction.parsed.info.source) {
-                                    sender = instruction.parsed.info.source;
-                              }
-                             if(instruction.parsed.info && instruction.parsed.info.destination) {
-                                 receiver = instruction.parsed.info.destination
-                             }
-                               if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
-                                   amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
-                            }
-                            break;
+            if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
+               for (const instruction of results.transaction.message.instructions) {
+                   if (instruction.parsed && instruction.parsed.type === "transfer") {
+                        if(instruction.parsed.info && instruction.parsed.info.source) {
+                            sender = instruction.parsed.info.source;
+                       }
+                        if(instruction.parsed.info && instruction.parsed.info.destination) {
+                           receiver = instruction.parsed.info.destination
                         }
-                    }
-              }
-             const gasSpent = results.meta.computeUnitsConsumed;
+                       if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
+                              amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+                       }
+                          break;
+                     }
+                 }
+           }
+            const gasSpent = results.meta.computeUnitsConsumed;
             const fee = results.meta.fee / LAMPORTS_PER_SOL;
-             const blockNumber = results.slot;
-             const confirmationTime = Math.floor((Date.now() / 1000) - results.blockTime);
-
-              const transactionHTML = `
-                 <h2>Transaction Details</h2>
+           const blockNumber = results.slot;
+            const confirmationTime = Math.floor((Date.now() / 1000) - results.blockTime);
+            const transactionHTML = `
+                <h2>Transaction Details</h2>
                    <div class="info-item">
                         <span class="label">Sender Address:</span><a href="/${sender}" onclick="navigateToWallet(event, '${sender}')" class="sliced" title="${sender}">${sender}</a>
                    </div>
                    <div class="info-item">
-                      <span class="label">Receiver Address:</span> <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" class="sliced" title="${receiver}">${receiver}</a>
+                       <span class="label">Receiver Address:</span> <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" class="sliced" title="${receiver}">${receiver}</a>
                    </div>
                      <div class="info-item">
-                        <span class="label">Amount (SOL):</span> ${amount} SOL
+                       <span class="label">Amount (SOL):</span> ${amount} SOL
                    </div>
                      <div class="info-item">
-                        <span class="label">Block Time (UTC):</span> ${blockTime}
-                   </div>
-                   <div class="info-item">
+                         <span class="label">Block Time (UTC):</span> ${blockTime}
+                    </div>
+                    <div class="info-item">
                        <span class="label">Block Number:</span> ${blockNumber}
                    </div>
                      <div class="info-item">
-                        <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
+                       <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
                    </div>
-                      <div class="info-item">
-                         <span class="label">Gas Spent:</span> ${gasSpent}
+                   <div class="info-item">
+                        <span class="label">Gas Spent:</span> ${gasSpent}
                     </div>
-                     <div class="info-item">
+                    <div class="info-item">
                        <span class="label">Fee (SOL):</span> ${fee} SOL
-                   </div>
-                   `;
+                    </div>
+               `;
             transactionDetailsDiv.innerHTML = transactionHTML;
         }
 
-
-      function renderTransactions(walletAddress) {
+         function renderTransactions(walletAddress) {
            const transactionHistoryDiv = document.getElementById('transaction-history');
-            const paginationDiv = document.getElementById('pagination');
-             const transactionDetailsDiv = document.getElementById('transaction-details');
+           const paginationDiv = document.getElementById('pagination');
+            const transactionDetailsDiv = document.getElementById('transaction-details');
             transactionHistoryDiv.innerHTML = '';
-           paginationDiv.innerHTML = '';
-            transactionDetailsDiv.innerHTML ="";
-
-             if (!allTransactions || allTransactions.length === 0) {
+            paginationDiv.innerHTML = '';
+           transactionDetailsDiv.innerHTML = "";
+           if (!allTransactions || allTransactions.length === 0) {
                 transactionHistoryDiv.innerHTML = `<p>No Transactions found</p>`;
                 return;
             }
-             const totalPages = Math.ceil(allTransactions.length / transactionsPerPage);
+           const totalPages = Math.ceil(allTransactions.length / transactionsPerPage);
             const startIndex = (currentPage - 1) * transactionsPerPage;
-           const endIndex = startIndex + transactionsPerPage;
-             const transactionsToDisplay = allTransactions.slice(startIndex, endIndex);
+            const endIndex = startIndex + transactionsPerPage;
+            const transactionsToDisplay = allTransactions.slice(startIndex, endIndex);
            let transactionsHTML = `<h2>Transaction History</h2>
-                                        <table class="transaction-table">
-                                           <thead>
+                                       <table class="transaction-table">
+                                            <thead>
                                                 <tr>
-                                                    <th>Signature</th>
+                                                   <th>Signature</th>
                                                     <th>Block Time</th>
                                                     <th>From</th>
-                                                   <th>To</th>
-                                                     <th>Amount</th>
+                                                    <th>To</th>
+                                                    <th>Amount</th>
                                                </tr>
                                            </thead>
-                                            <tbody>
+                                           <tbody>
                                         `;
-           for (const transaction of transactionsToDisplay) {
+          for (const transaction of transactionsToDisplay) {
                  if (!transaction || !transaction.transaction || !transaction.meta || !transaction.meta.innerInstructions) continue;
                const signature = transaction.transaction.signatures[0];
-                const blockTime = transaction.blockTime ? new Date(transaction.blockTime * 1000).toLocaleString() : "Pending";
+               const blockTime = transaction.blockTime ? new Date(transaction.blockTime * 1000).toLocaleString() : "Pending";
                 let fromAddress = "Unknown";
-               let toAddress = "Unknown";
+                let toAddress = "Unknown";
                 let amount = "0";
-                const transferDetails = extractTransferDetails(transaction, walletAddress);
-               if (transferDetails) {
+               const transferDetails = extractTransferDetails(transaction, walletAddress);
+                if (transferDetails) {
                     fromAddress = transferDetails.fromAddress;
                     toAddress = transferDetails.toAddress;
                     amount = transferDetails.amount;
                }
-                 transactionsHTML += `<tr>
-                                        <td><a href="#" onclick="showTransactionDetails(event, '${signature}')" class="sliced" title="${signature}">${signature}</a></td>
-                                        <td>${blockTime}</td>
-                                         <td><a href="/${fromAddress}" onclick="navigateToWallet(event, '${fromAddress}')" class="sliced" title="${fromAddress}">${fromAddress}</a></td>
-                                         <td><a href="/${toAddress}" onclick="navigateToWallet(event, '${toAddress}')" class="sliced" title="${toAddress}">${toAddress}</a></td>
+
+               transactionsHTML += `<tr>
+                                        <td><a href="/${signature}" onclick="showTransactionDetails(event, '${signature}')" class="sliced" title="${signature}">${signature}</a></td>
+                                       <td>${blockTime}</td>
+                                        <td><a href="/${fromAddress}" onclick="navigateToWallet(event, '${fromAddress}')" class="sliced" title="${fromAddress}">${fromAddress}</a></td>
+                                       <td><a href="/${toAddress}" onclick="navigateToWallet(event, '${toAddress}')" class="sliced" title="${toAddress}">${toAddress}</a></td>
                                         <td>${amount}</td>
                                     </tr>`;
-             }
-            transactionsHTML += `</tbody></table>`;
-             transactionHistoryDiv.innerHTML = transactionsHTML;
-             // Render pagination buttons
+          }
+           transactionsHTML += `</tbody></table>`;
+           transactionHistoryDiv.innerHTML = transactionsHTML;
+
             if (totalPages > 1) {
                 let paginationHTML = "";
-                 for (let i = 1; i <= totalPages; i++) {
+                for (let i = 1; i <= totalPages; i++) {
                     paginationHTML += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
                  }
-                paginationDiv.innerHTML = paginationHTML;
+               paginationDiv.innerHTML = paginationHTML;
             }
-         }
+       }
+
 
         function goToPage(pageNumber) {
             currentPage = pageNumber;
-              renderTransactions(document.getElementById('walletAddress').value);
-        }
-
-        function extractTransferDetails(transaction, walletAddress) {
+             renderTransactions(document.getElementById('walletAddress').value);
+         }
+         function extractTransferDetails(transaction, walletAddress) {
             if (!transaction || !transaction.meta || !transaction.meta.innerInstructions) {
                 return null;
-            }
+           }
 
             for (const instructionSet of transaction.meta.innerInstructions) {
-                for (const instruction of instructionSet.instructions) {
-                    if (instruction.parsed && instruction.parsed.type === "transfer") {
+               for (const instruction of instructionSet.instructions) {
+                   if (instruction.parsed && instruction.parsed.type === "transfer") {
                         const info = instruction.parsed.info;
                         let fromAddress = info.source;
-                        let toAddress = info.destination;
-                         let amount = 0;
+                         let toAddress = info.destination;
+                       let amount = 0;
 
-                         if(info.lamports) { // For SOL transfers
-                             amount = info.lamports / 1000000000;
-                            if (fromAddress === walletAddress) {
-                                 fromAddress = walletAddress;
+                        if(info.lamports) { // For SOL transfers
+                            amount = info.lamports / 1000000000;
+                          if (fromAddress === walletAddress) {
+                                fromAddress = walletAddress;
                                 toAddress = info.destination;
-                             } else {
-                                fromAddress = info.source;
-                                toAddress = walletAddress;
-                             }
-
-                           } else if (info.amount) { // For Token Transfers
-                             amount = info.amount / Math.pow(10, info.decimals);
-
-                              if(fromAddress === walletAddress){
-                                  fromAddress = walletAddress;
-                                  toAddress = info.destination;
-                            }else {
-                                fromAddress = info.source;
-                                toAddress = walletAddress;
-                             }
-                         }
-                          return { fromAddress, toAddress, amount: amount.toFixed(4) };
-                    }
-               }
-            }
-            if (transaction.transaction.message.instructions) {
-                  for (const instruction of transaction.transaction.message.instructions) {
-                      if (instruction.parsed && instruction.parsed.type === "transfer") {
-                          const info = instruction.parsed.info;
-                         let fromAddress = info.source;
-                        let toAddress = info.destination;
-                        let amount = 0;
-
-
-                            if(info.lamports) { // For SOL transfers
-                             amount = info.lamports / 1000000000;
-
-                            if (fromAddress === walletAddress) {
-                                 fromAddress = walletAddress;
-                                toAddress = info.destination;
-                             } else {
+                            } else {
                                 fromAddress = info.source;
                                 toAddress = walletAddress;
                            }
-                          } else if (info.amount) { // For Token Transfers
-                            amount =  info.amount / Math.pow(10, info.decimals);
-                              if(fromAddress === walletAddress){
+
+                        } else if (info.amount) { // For Token Transfers
+                            amount = info.amount / Math.pow(10, info.decimals);
+
+                            if(fromAddress === walletAddress){
+                                fromAddress = walletAddress;
+                                toAddress = info.destination;
+                             }else {
+                                fromAddress = info.source;
+                               toAddress = walletAddress;
+                             }
+                        }
+                       return { fromAddress, toAddress, amount: amount.toFixed(4) };
+                   }
+               }
+           }
+
+           if (transaction.transaction.message.instructions) {
+                 for (const instruction of transaction.transaction.message.instructions) {
+                    if (instruction.parsed && instruction.parsed.type === "transfer") {
+                         const info = instruction.parsed.info;
+                          let fromAddress = info.source;
+                        let toAddress = info.destination;
+                        let amount = 0;
+
+                          if(info.lamports) { // For SOL transfers
+                             amount = info.lamports / 1000000000;
+                           if (fromAddress === walletAddress) {
+                                 fromAddress = walletAddress;
+                                toAddress = info.destination;
+                            }else {
+                                 fromAddress = info.source;
+                                 toAddress = walletAddress;
+                           }
+                           } else if (info.amount) { // For Token Transfers
+                             amount =  info.amount / Math.pow(10, info.decimals);
+
+                             if(fromAddress === walletAddress){
                                  fromAddress = walletAddress;
                                   toAddress = info.destination;
-                             } else {
-                                 fromAddress = info.source;
+                           } else {
+                                  fromAddress = info.source;
                                   toAddress = walletAddress;
-                            }
-                       }
-
-                       return { fromAddress, toAddress, amount: amount.toFixed(4) };
-
+                             }
+                         }
+                        return { fromAddress, toAddress, amount: amount.toFixed(4) };
                     }
                 }
-            }
+           }
            return null;
        }
+
        function updateUrl(walletAddress) {
             if (walletAddress) {
                 history.pushState(null, null, `/${walletAddress}`);
-           } else {
-               history.pushState(null, null, '/');
+            } else {
+                history.pushState(null, null, '/');
            }
-       }
+        }
 
-      function navigateToWallet(event, walletAddress) {
-             event.preventDefault();
-             document.getElementById('walletAddress').value = walletAddress;
-             fetchAccountDetails(walletAddress);
+       function navigateToWallet(event, walletAddress) {
+            if(event) {
+                event.preventDefault();
+             }
+           document.getElementById('walletAddress').value = walletAddress;
+           fetchAccountDetails(walletAddress);
         }
 
           // On page load, parse wallet address from URL
-         window.onload = function () {
+        window.onload = function () {
             const path = window.location.pathname;
            if (path && path.length > 1) {
-                 const walletAddressFromUrl = path.substring(1);
-                document.getElementById('walletAddress').value = walletAddressFromUrl;
-                 fetchAccountDetails(walletAddressFromUrl);
+               const walletAddressFromUrl = path.substring(1);
+               document.getElementById('walletAddress').value = walletAddressFromUrl;
+                fetchAccountDetails(walletAddressFromUrl);
             }
         }
 
-          async function showTransactionDetails(event, signature) {
+         async function showTransactionDetails(event, signature) {
             event.preventDefault();
-            currentTransactionSignature = signature;
-             try {
-                 const transactionDetails = await fetchTransactionDetails(signature);
-                 if (transactionDetails) {
-                     displayTransactionDetails(transactionDetails);
-                 }
-             }catch (error) {
-                   console.error("Failed to fetch transaction details:", error);
-                  const transactionDetailsDiv = document.getElementById('transaction-details');
-                   transactionDetailsDiv.innerHTML = `<p>Error fetching transaction details.</p>`;
-             }
+            document.getElementById('walletAddress').value = signature;
+             fetchAccountDetails(signature);
         }
-
     </script>
 </body>
 </html>
