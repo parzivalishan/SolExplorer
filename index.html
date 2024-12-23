@@ -85,7 +85,7 @@
            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
          }
 
-        .wallet-info {
+         .wallet-info {
             margin-top: 25px;
             background-color: #102538;
             padding: 25px;
@@ -301,70 +301,70 @@
         let allTransactions = [];
         let currentPage = 1;
         const transactionsPerPage = 10;
-        let currentTransactionSignature = null;
+          let currentTransactionSignature = null;
 
-
-         async function fetchAccountDetails(walletAddressFromUrl = null) {
-             const walletAddress = walletAddressFromUrl || document.getElementById('walletAddress').value;
+           async function fetchAccountDetails(walletAddressFromUrl = null) {
+            const walletAddress = walletAddressFromUrl || document.getElementById('walletAddress').value;
              const walletInfoDiv = document.getElementById('wallet-info');
             const errorMessageDiv = document.getElementById('error-message');
              const tokenBalancesDiv = document.getElementById('token-balances');
-             const transactionHistoryDiv = document.getElementById('transaction-history');
+            const transactionHistoryDiv = document.getElementById('transaction-history');
               const paginationDiv = document.getElementById('pagination');
              const transactionDetailsDiv = document.getElementById('transaction-details');
 
            walletInfoDiv.innerHTML = '';
            errorMessageDiv.textContent = '';
-            tokenBalancesDiv.innerHTML = '';
-             transactionHistoryDiv.innerHTML = '';
+             tokenBalancesDiv.innerHTML = '';
+            transactionHistoryDiv.innerHTML = '';
            paginationDiv.innerHTML = '';
-           transactionDetailsDiv.innerHTML = "";
-            currentTransactionSignature = null;
+            transactionDetailsDiv.innerHTML = "";
+             currentTransactionSignature = null;
 
             if (!walletAddress) {
                  errorMessageDiv.textContent = "Please enter a wallet or transaction address.";
-                updateUrl('');
-                return;
+                 updateUrl('');
+                 return;
             }
 
             const isWalletAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress);
              if (isWalletAddress) {
-                try {
+                 try {
                     // Fetch SOL balance and general account info
                      const accountInfo = await fetchAccountInfo(walletAddress);
                      if (accountInfo) {
                          displayWalletInfo(accountInfo, walletAddress);
-                   }
+                    }
+
                     // Fetch token balances
                      const tokenBalances = await fetchTokenBalances(walletAddress);
                      if (tokenBalances) {
                         displayTokenBalances(tokenBalances);
-                     }
+                    }
 
                     // Fetch all transactions
                      allTransactions = await fetchAllTransactions(walletAddress);
-                    renderTransactions(walletAddress);
+                     renderTransactions(walletAddress);
                       updateUrl(walletAddress);
 
                  } catch (error) {
                      errorMessageDiv.textContent = `Error: ${error.message}`;
-                }
+                 }
             } else {
-                try {
-                   // Handle transaction hash
-                    const transactionDetails = await fetchTransactionDetails(walletAddress);
+                 try {
+                    // Handle transaction hash
+                     const transactionDetails = await fetchTransactionDetails(walletAddress);
                      if (transactionDetails) {
-                        displayTransactionDetails(transactionDetails);
-                        updateUrl(walletAddress);
-                      } else {
-                        errorMessageDiv.textContent = `No transaction found for address: ${walletAddress}`;
-                        updateUrl('');
-                       }
+                          displayTransactionDetails(transactionDetails);
+                           updateUrl(walletAddress);
+                       } else {
+                           errorMessageDiv.textContent = `No transaction found for address: ${walletAddress}`;
+                           updateUrl('');
+                        }
                 } catch (error) {
-                     errorMessageDiv.textContent = `Error: ${error.message}`;
-                    updateUrl('');
+                      errorMessageDiv.textContent = `Error: ${error.message}`;
+                     updateUrl('');
                 }
-            }
+           }
         }
 
           async function fetchAccountInfo(walletAddress) {
@@ -402,12 +402,11 @@
             }
         }
 
-
         function displayWalletInfo(accountInfo, walletAddress) {
              const walletInfoDiv = document.getElementById('wallet-info');
            let solBalance = 0;
            let isNative = false;
-                if (accountInfo && accountInfo.lamports) {
+               if (accountInfo && accountInfo.lamports) {
                    solBalance = accountInfo.lamports / 1000000000;
                    isNative = accountInfo && accountInfo.data && accountInfo.data.parsed && accountInfo.data.parsed.info && accountInfo.data.parsed.info.isNative;
                  }
@@ -447,8 +446,8 @@
                })
         }
 
-        async function fetchTokenBalances(walletAddress) {
-            const requestBody = {
+         async function fetchTokenBalances(walletAddress) {
+             const requestBody = {
                 jsonrpc: "2.0",
                 id: 1,
                 method: "getTokenAccountsByOwner",
@@ -463,8 +462,8 @@
                 ]
             };
 
-            try {
-                const response = await fetch(apiUrl, {
+             try {
+                 const response = await fetch(apiUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -476,19 +475,17 @@
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                const data = await response.json();
+                 const data = await response.json();
                 if (data.error) {
-                    throw new Error(`RPC Error: ${data.error.message}`);
+                     throw new Error(`RPC Error: ${data.error.message}`);
                 }
-                return data.result.value;
-
-            } catch (error) {
-                console.error("Failed to fetch token balances:", error);
+                 return data.result.value;
+             } catch (error) {
+                 console.error("Failed to fetch token balances:", error);
                 return null;
 
-            }
+           }
         }
-
 
         function displayTokenBalances(tokenAccounts) {
            const tokenBalancesDiv = document.getElementById('token-balances');
@@ -496,17 +493,16 @@
                 tokenBalancesDiv.innerHTML = `<p>No Tokens held</p>`;
                 return;
             }
-
            let tokensHTML = `<h2>Token Balances</h2>`;
             for (const account of tokenAccounts) {
                 const tokenInfo = account.account.data.parsed.info;
                 const amount = tokenInfo.tokenAmount.uiAmountString;
                 const mint = tokenInfo.mint;
-               tokensHTML += `<div class="token-item">
+                tokensHTML += `<div class="token-item">
                                  <span class="label">Mint:</span> ${mint} <br>
-                                   <span class="label">Balance:</span> ${amount}
+                                  <span class="label">Balance:</span> ${amount}
                             </div>`;
-           }
+            }
 
            tokenBalancesDiv.innerHTML = tokensHTML;
         }
@@ -524,7 +520,7 @@
                 ]
             };
 
-           try {
+            try {
                 const response = await fetch(apiUrl, {
                     method: "POST",
                     headers: {
@@ -547,7 +543,7 @@
 
                 if (!transactionSignatures || transactionSignatures.length === 0) {
                    return [];
-               }
+                }
                 // Fetch transaction details for each signature
                 const transactions = await Promise.all(transactionSignatures.map(async (sig) => {
                     return await fetchTransactionDetails(sig.signature);
@@ -555,7 +551,7 @@
 
                 return transactions;
 
-           } catch (error) {
+            } catch (error) {
                 console.error("Failed to fetch transaction history:", error);
                 return null;
             }
@@ -579,8 +575,8 @@
                    ]
                 };
 
-                try {
-                     const response = await fetch(apiUrl, {
+                 try {
+                    const response = await fetch(apiUrl, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -600,22 +596,22 @@
                    if (!transactionSignatures || transactionSignatures.length === 0) {
                         hasMore = false;
                         continue;
-                   }
+                    }
                      const transactionDetailsPromises = transactionSignatures.map(sig => fetchTransactionDetails(sig.signature));
                     const transactionDetails = await Promise.all(transactionDetailsPromises);
 
-                    allTransactions = allTransactions.concat(transactionDetails);
+                     allTransactions = allTransactions.concat(transactionDetails);
                     beforeSignature = transactionSignatures[transactionSignatures.length - 1].signature;
-                } catch (error) {
-                    console.error("Failed to fetch all transactions:", error);
-                     hasMore = false;
+               } catch (error) {
+                   console.error("Failed to fetch all transactions:", error);
+                      hasMore = false;
                 }
-           }
+            }
            return allTransactions;
         }
 
         async function fetchTransactionDetails(signature) {
-            const requestBody = {
+             const requestBody = {
                 jsonrpc: "2.0",
                 id: 1,
                 method: "getTransaction",
@@ -643,46 +639,46 @@
                     throw new Error(`RPC Error: ${data.error.message}`);
                 }
                 return data.result;
-           } catch (error) {
+            } catch (error) {
                 console.error("Failed to fetch transaction details:", error);
                 return null;
             }
         }
 
+
          function displayTransactionDetails(results) {
-             const transactionDetailsDiv = document.getElementById('transaction-details');
+           const transactionDetailsDiv = document.getElementById('transaction-details');
             transactionDetailsDiv.innerHTML = "";
-              if (!results || !results.transaction || !results.meta ) {
+             if (!results || !results.transaction || !results.meta ) {
                   transactionDetailsDiv.innerHTML = `<p>Invalid transaction data</p>`;
                     return;
-                }
+             }
             const blockTime = new Date(results.blockTime * 1000).toUTCString();
 
-            let sender = 'N/A';
-            let receiver ='N/A';
+             let sender = 'N/A';
+           let receiver ='N/A';
             let amount = 'N/A';
 
-             if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
-                  for (const instruction of results.transaction.message.instructions) {
-                       if (instruction.parsed && instruction.parsed.type === "transfer") {
-                              if(instruction.parsed.info && instruction.parsed.info.source) {
-                                  sender = instruction.parsed.info.source;
+               if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
+                    for (const instruction of results.transaction.message.instructions) {
+                        if (instruction.parsed && instruction.parsed.type === "transfer") {
+                                if(instruction.parsed.info && instruction.parsed.info.source) {
+                                    sender = instruction.parsed.info.source;
                               }
                              if(instruction.parsed.info && instruction.parsed.info.destination) {
-                                  receiver = instruction.parsed.info.destination
-                              }
-                              if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
-                                  amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+                                 receiver = instruction.parsed.info.destination
+                             }
+                               if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
+                                   amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
                             }
-                          break;
+                            break;
                         }
-                     }
-             }
-
-            const gasSpent = results.meta.computeUnitsConsumed;
-             const fee = results.meta.fee / LAMPORTS_PER_SOL;
-           const blockNumber = results.slot;
-              const confirmationTime = Math.floor((Date.now() / 1000) - results.blockTime);
+                    }
+              }
+             const gasSpent = results.meta.computeUnitsConsumed;
+            const fee = results.meta.fee / LAMPORTS_PER_SOL;
+             const blockNumber = results.slot;
+             const confirmationTime = Math.floor((Date.now() / 1000) - results.blockTime);
 
               const transactionHTML = `
                  <h2>Transaction Details</h2>
@@ -690,219 +686,212 @@
                         <span class="label">Sender Address:</span><a href="/${sender}" onclick="navigateToWallet(event, '${sender}')" class="sliced" title="${sender}">${sender}</a>
                    </div>
                    <div class="info-item">
-                       <span class="label">Receiver Address:</span> <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" class="sliced" title="${receiver}">${receiver}</a>
+                      <span class="label">Receiver Address:</span> <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" class="sliced" title="${receiver}">${receiver}</a>
                    </div>
                      <div class="info-item">
                         <span class="label">Amount (SOL):</span> ${amount} SOL
                    </div>
                      <div class="info-item">
                         <span class="label">Block Time (UTC):</span> ${blockTime}
-                    </div>
-                    <div class="info-item">
-                      <span class="label">Block Number:</span> ${blockNumber}
+                   </div>
+                   <div class="info-item">
+                       <span class="label">Block Number:</span> ${blockNumber}
                    </div>
                      <div class="info-item">
-                      <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
-                    </div>
+                        <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
+                   </div>
                       <div class="info-item">
-                        <span class="label">Gas Spent:</span> ${gasSpent}
+                         <span class="label">Gas Spent:</span> ${gasSpent}
                     </div>
                      <div class="info-item">
                        <span class="label">Fee (SOL):</span> ${fee} SOL
-                     </div>
+                   </div>
                    `;
             transactionDetailsDiv.innerHTML = transactionHTML;
         }
 
-     function renderTransactions(walletAddress) {
+
+      function renderTransactions(walletAddress) {
            const transactionHistoryDiv = document.getElementById('transaction-history');
             const paginationDiv = document.getElementById('pagination');
              const transactionDetailsDiv = document.getElementById('transaction-details');
             transactionHistoryDiv.innerHTML = '';
            paginationDiv.innerHTML = '';
-           transactionDetailsDiv.innerHTML ="";
+            transactionDetailsDiv.innerHTML ="";
 
-            if (!allTransactions || allTransactions.length === 0) {
+             if (!allTransactions || allTransactions.length === 0) {
                 transactionHistoryDiv.innerHTML = `<p>No Transactions found</p>`;
                 return;
             }
-            const totalPages = Math.ceil(allTransactions.length / transactionsPerPage);
-
+             const totalPages = Math.ceil(allTransactions.length / transactionsPerPage);
             const startIndex = (currentPage - 1) * transactionsPerPage;
            const endIndex = startIndex + transactionsPerPage;
-            const transactionsToDisplay = allTransactions.slice(startIndex, endIndex);
-            let transactionsHTML = `<h2>Transaction History</h2>
+             const transactionsToDisplay = allTransactions.slice(startIndex, endIndex);
+           let transactionsHTML = `<h2>Transaction History</h2>
                                         <table class="transaction-table">
                                            <thead>
                                                 <tr>
                                                     <th>Signature</th>
                                                     <th>Block Time</th>
                                                     <th>From</th>
-                                                    <th>To</th>
+                                                   <th>To</th>
                                                      <th>Amount</th>
                                                </tr>
                                            </thead>
                                             <tbody>
                                         `;
-            for (const transaction of transactionsToDisplay) {
-                  if (!transaction || !transaction.transaction || !transaction.meta || !transaction.meta.innerInstructions) continue;
-                 const signature = transaction.transaction.signatures[0];
+           for (const transaction of transactionsToDisplay) {
+                 if (!transaction || !transaction.transaction || !transaction.meta || !transaction.meta.innerInstructions) continue;
+               const signature = transaction.transaction.signatures[0];
                 const blockTime = transaction.blockTime ? new Date(transaction.blockTime * 1000).toLocaleString() : "Pending";
                 let fromAddress = "Unknown";
-                let toAddress = "Unknown";
-               let amount = "0";
+               let toAddress = "Unknown";
+                let amount = "0";
                 const transferDetails = extractTransferDetails(transaction, walletAddress);
-                if (transferDetails) {
+               if (transferDetails) {
                     fromAddress = transferDetails.fromAddress;
-                   toAddress = transferDetails.toAddress;
+                    toAddress = transferDetails.toAddress;
                     amount = transferDetails.amount;
-                }
-
+               }
                  transactionsHTML += `<tr>
                                         <td><a href="#" onclick="showTransactionDetails(event, '${signature}')" class="sliced" title="${signature}">${signature}</a></td>
-                                       <td>${blockTime}</td>
-                                       <td><a href="/${fromAddress}" onclick="navigateToWallet(event, '${fromAddress}')" class="sliced" title="${fromAddress}">${fromAddress}</a></td>
+                                        <td>${blockTime}</td>
+                                         <td><a href="/${fromAddress}" onclick="navigateToWallet(event, '${fromAddress}')" class="sliced" title="${fromAddress}">${fromAddress}</a></td>
                                          <td><a href="/${toAddress}" onclick="navigateToWallet(event, '${toAddress}')" class="sliced" title="${toAddress}">${toAddress}</a></td>
                                         <td>${amount}</td>
                                     </tr>`;
-            }
-             transactionsHTML += `</tbody></table>`;
+             }
+            transactionsHTML += `</tbody></table>`;
              transactionHistoryDiv.innerHTML = transactionsHTML;
-
-            // Render pagination buttons
-             if (totalPages > 1) {
+             // Render pagination buttons
+            if (totalPages > 1) {
                 let paginationHTML = "";
-                for (let i = 1; i <= totalPages; i++) {
-                     paginationHTML += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
-                }
-                 paginationDiv.innerHTML = paginationHTML;
+                 for (let i = 1; i <= totalPages; i++) {
+                    paginationHTML += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+                 }
+                paginationDiv.innerHTML = paginationHTML;
             }
-        }
-
-         function goToPage(pageNumber) {
-            currentPage = pageNumber;
-           renderTransactions(document.getElementById('walletAddress').value);
          }
 
+        function goToPage(pageNumber) {
+            currentPage = pageNumber;
+              renderTransactions(document.getElementById('walletAddress').value);
+        }
 
-       function extractTransferDetails(transaction, walletAddress) {
-             if (!transaction || !transaction.meta || !transaction.meta.innerInstructions) {
+        function extractTransferDetails(transaction, walletAddress) {
+            if (!transaction || !transaction.meta || !transaction.meta.innerInstructions) {
                 return null;
             }
 
             for (const instructionSet of transaction.meta.innerInstructions) {
-               for (const instruction of instructionSet.instructions) {
-                   if (instruction.parsed && instruction.parsed.type === "transfer") {
-                       const info = instruction.parsed.info;
-                        let fromAddress = info.source;
-                        let toAddress = info.destination;
-                        let amount = 0;
-
-                         if(info.lamports) { // For SOL transfers
-                             amount = info.lamports / 1000000000;
-                           if (fromAddress === walletAddress) {
-                                fromAddress = walletAddress;
-                                toAddress = info.destination;
-                           } else {
-                               fromAddress = info.source;
-                               toAddress = walletAddress;
-                            }
-
-                           } else if (info.amount) { // For Token Transfers
-                             amount = info.amount / Math.pow(10, info.decimals);
-
-                                if(fromAddress === walletAddress){
-                                   fromAddress = walletAddress;
-                                  toAddress = info.destination;
-                            }else {
-                                 fromAddress = info.source;
-                               toAddress = walletAddress;
-                            }
-                         }
-                        return { fromAddress, toAddress, amount: amount.toFixed(4) };
-                  }
-               }
-            }
-
-            if (transaction.transaction.message.instructions) {
-                 for (const instruction of transaction.transaction.message.instructions) {
+                for (const instruction of instructionSet.instructions) {
                     if (instruction.parsed && instruction.parsed.type === "transfer") {
                         const info = instruction.parsed.info;
-                         let fromAddress = info.source;
+                        let fromAddress = info.source;
                         let toAddress = info.destination;
-                        let amount = 0;
+                         let amount = 0;
 
-                           if(info.lamports) { // For SOL transfers
+                         if(info.lamports) { // For SOL transfers
                              amount = info.lamports / 1000000000;
                             if (fromAddress === walletAddress) {
                                  fromAddress = walletAddress;
                                 toAddress = info.destination;
+                             } else {
+                                fromAddress = info.source;
+                                toAddress = walletAddress;
+                             }
+
+                           } else if (info.amount) { // For Token Transfers
+                             amount = info.amount / Math.pow(10, info.decimals);
+
+                              if(fromAddress === walletAddress){
+                                  fromAddress = walletAddress;
+                                  toAddress = info.destination;
                             }else {
                                 fromAddress = info.source;
                                 toAddress = walletAddress;
                              }
-                            } else if (info.amount) { // For Token Transfers
-                             amount =  info.amount / Math.pow(10, info.decimals);
+                         }
+                          return { fromAddress, toAddress, amount: amount.toFixed(4) };
+                    }
+               }
+            }
+            if (transaction.transaction.message.instructions) {
+                  for (const instruction of transaction.transaction.message.instructions) {
+                      if (instruction.parsed && instruction.parsed.type === "transfer") {
+                          const info = instruction.parsed.info;
+                         let fromAddress = info.source;
+                        let toAddress = info.destination;
+                        let amount = 0;
 
-                             if(fromAddress === walletAddress){
-                                  fromAddress = walletAddress;
-                                  toAddress = info.destination;
-                             }else {
+
+                            if(info.lamports) { // For SOL transfers
+                             amount = info.lamports / 1000000000;
+
+                            if (fromAddress === walletAddress) {
+                                 fromAddress = walletAddress;
+                                toAddress = info.destination;
+                             } else {
                                 fromAddress = info.source;
-                                 toAddress = walletAddress;
+                                toAddress = walletAddress;
+                           }
+                          } else if (info.amount) { // For Token Transfers
+                            amount =  info.amount / Math.pow(10, info.decimals);
+                              if(fromAddress === walletAddress){
+                                 fromAddress = walletAddress;
+                                  toAddress = info.destination;
+                             } else {
+                                 fromAddress = info.source;
+                                  toAddress = walletAddress;
                             }
                        }
-                         return { fromAddress, toAddress, amount: amount.toFixed(4) };
+
+                       return { fromAddress, toAddress, amount: amount.toFixed(4) };
 
                     }
                 }
-
-             }
-            return null;
-        }
-
-
-      function updateUrl(walletAddress) {
+            }
+           return null;
+       }
+       function updateUrl(walletAddress) {
             if (walletAddress) {
                 history.pushState(null, null, `/${walletAddress}`);
            } else {
-                history.pushState(null, null, '/');
-            }
-        }
+               history.pushState(null, null, '/');
+           }
+       }
 
-       function navigateToWallet(event, walletAddress) {
+      function navigateToWallet(event, walletAddress) {
              event.preventDefault();
-            document.getElementById('walletAddress').value = walletAddress;
-           fetchAccountDetails(walletAddress);
+             document.getElementById('walletAddress').value = walletAddress;
+             fetchAccountDetails(walletAddress);
         }
 
           // On page load, parse wallet address from URL
-        window.onload = function () {
+         window.onload = function () {
             const path = window.location.pathname;
            if (path && path.length > 1) {
-                const walletAddressFromUrl = path.substring(1);
-                 document.getElementById('walletAddress').value = walletAddressFromUrl; // Optional
-                fetchAccountDetails(walletAddressFromUrl);
+                 const walletAddressFromUrl = path.substring(1);
+                document.getElementById('walletAddress').value = walletAddressFromUrl;
+                 fetchAccountDetails(walletAddressFromUrl);
             }
         }
 
-        async function showTransactionDetails(event, signature) {
-              event.preventDefault();
+          async function showTransactionDetails(event, signature) {
+            event.preventDefault();
             currentTransactionSignature = signature;
              try {
-                const transactionDetails = await fetchTransactionDetails(signature);
+                 const transactionDetails = await fetchTransactionDetails(signature);
                  if (transactionDetails) {
                      displayTransactionDetails(transactionDetails);
                  }
-           }catch (error) {
-                  console.error("Failed to fetch transaction details:", error);
-                 const transactionDetailsDiv = document.getElementById('transaction-details');
-                    transactionDetailsDiv.innerHTML = `<p>Error fetching transaction details.</p>`;
-
-            }
+             }catch (error) {
+                   console.error("Failed to fetch transaction details:", error);
+                  const transactionDetailsDiv = document.getElementById('transaction-details');
+                   transactionDetailsDiv.innerHTML = `<p>Error fetching transaction details.</p>`;
+             }
         }
 
     </script>
 </body>
-
 </html>
