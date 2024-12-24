@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solana Account Explorer</title>
     <style>
-         body {
+        body {
             font-family: 'Roboto Mono', monospace;
             margin: 0;
-            background-color: #050a13;
+            background-color: #040d1c;
             color: #d0f2ff;
             overflow-x: hidden;
             display: flex;
@@ -30,8 +30,8 @@
         h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #a7e7ff;
-            text-shadow: 0 0 8px #375067;
+            color: #4ee5ff;
+            text-shadow: 0 0 8px #0c3560;
             letter-spacing: 2px;
         }
 
@@ -39,7 +39,7 @@
             width: calc(100% - 20px);
             padding: 14px;
             margin-bottom: 20px;
-            border: 2px solid #375067;
+            border: 2px solid #1c3454;
             border-radius: 8px;
             background-color: #102538;
             color: #a7e7ff;
@@ -51,13 +51,13 @@
         }
 
         input[type="text"]:focus {
-            border-color: #a7e7ff;
+            border-color: #4ee5ff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
 
         button {
             padding: 14px 30px;
-            background-color: #a7e7ff;
+            background-color: #4ee5ff;
             color: #050a13;
             border: none;
             border-radius: 8px;
@@ -73,24 +73,23 @@
             transform: scale(1.05);
         }
 
-       #error-message {
+        #error-message {
             color: #ff7e7e;
             margin-top: 20px;
-             padding: 15px;
+            padding: 15px;
             background-color: #102538;
-             border: 1px solid #375067;
+            border: 1px solid #1c3454;
             border-radius: 8px;
             font-size: 16px;
-           letter-spacing: 1px;
-           box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-         }
-
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
 
         .wallet-info {
             margin-top: 25px;
             background-color: #102538;
             padding: 25px;
-            border: 1px solid #375067;
+            border: 1px solid #1c3454;
             border-radius: 10px;
             overflow-x: auto;
             margin-bottom: 25px;
@@ -98,11 +97,11 @@
         }
 
         .wallet-info h2 {
-            color: #a7e7ff;
-            border-bottom: 1px solid #375067;
+            color: #4ee5ff;
+            border-bottom: 1px solid #1c3454;
             padding-bottom: 10px;
             margin-bottom: 20px;
-            text-shadow: 0 0 4px #375067;
+            text-shadow: 0 0 4px #0c3560;
             letter-spacing: 1px;
         }
 
@@ -117,8 +116,8 @@
         .wallet-info .info-item .label {
             font-weight: bold;
             margin-right: 12px;
-            color: #90caf9;
-            text-shadow: 0 0 2px #375067;
+            color: #4ee5ff;
+            text-shadow: 0 0 2px #0c3560;
         }
 
         .token-list {
@@ -126,163 +125,202 @@
         }
 
         .token-list h2 {
-            color: #a7e7ff;
-            border-bottom: 1px solid #375067;
+            color: #4ee5ff;
+            border-bottom: 1px solid #1c3454;
             padding-bottom: 10px;
             margin-bottom: 20px;
-            text-shadow: 0 0 4px #375067;
+            text-shadow: 0 0 4px #0c3560;
             letter-spacing: 1px;
         }
 
         .token-item {
-           background-color: #1a344d;
-           padding: 20px;
-           margin-bottom: 15px;
+            background-color: #1a344d;
+            padding: 20px;
+            margin-bottom: 15px;
             border-radius: 10px;
-             border: 1px solid #375067;
+            border: 1px solid #1c3454;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
             transition: transform 0.1s;
-          }
+        }
 
-          .token-item:hover {
-              transform: scale(1.02);
-          }
+        .token-item:hover {
+            transform: scale(1.02);
+        }
 
-          .token-item .label {
-              font-weight: bold;
-              margin-right: 12px;
-            color: #90caf9;
-            text-shadow: 0 0 2px #375067;
+        .token-item .label {
+            font-weight: bold;
+            margin-right: 12px;
+            color: #4ee5ff;
+            text-shadow: 0 0 2px #0c3560;
             letter-spacing: 1px;
-          }
-
-
-         .transaction-list {
-              margin-top: 30px;
-              overflow-x: auto;
         }
 
 
+        .transaction-list {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
         .transaction-list h2 {
-            color: #a7e7ff;
-            border-bottom: 1px solid #375067;
+            color: #4ee5ff;
+            border-bottom: 1px solid #1c3454;
             padding-bottom: 10px;
-           margin-bottom: 20px;
-            text-shadow: 0 0 4px #375067;
-           letter-spacing: 1px;
-          }
+            margin-bottom: 20px;
+            text-shadow: 0 0 4px #0c3560;
+            letter-spacing: 1px;
+        }
 
         .transaction-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-             background-color: #1a344d;
-            border: 1px solid #375067;
+            background-color: #1a344d;
+            border: 1px solid #1c3454;
             border-radius: 10px;
             overflow-x: auto;
-          }
-
+        }
 
         .transaction-table th,
-         .transaction-table td {
-             padding: 12px;
-             border: 1px solid #375067;
-             text-align: left;
-             font-size: 14px;
-             letter-spacing: 0.5px;
-          }
+        .transaction-table td {
+            padding: 12px;
+            border: 1px solid #1c3454;
+            text-align: left;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
 
-          .transaction-table th {
-             background-color: #102538;
-             color: #a7e7ff;
-             text-shadow: 0 0 2px #375067;
-           }
+        .transaction-table th {
+            background-color: #102538;
+            color: #4ee5ff;
+            text-shadow: 0 0 2px #0c3560;
+        }
 
-         .pagination {
-             margin-top: 25px;
+        .pagination {
+            margin-top: 25px;
             text-align: center;
-          }
+        }
 
-         .pagination button {
-             margin: 0 5px;
-            background-color: #375067;
-            color: #a7e7ff;
+        .pagination button {
+            margin: 0 5px;
+            background-color: #1c3454;
+            color: #4ee5ff;
             border: none;
             padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.1s;
             letter-spacing: 1px;
-             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-          }
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
 
-          .pagination button:hover {
-               background-color: #4a6985;
-               transform: scale(1.05);
-         }
+        .pagination button:hover {
+            background-color: #4a6985;
+            transform: scale(1.05);
+        }
 
         .pagination .active {
-            background-color: #a7e7ff;
+            background-color: #4ee5ff;
             color: #050a13;
-         }
+        }
 
         a {
-             color: #a7e7ff;
+            color: #4ee5ff;
             text-decoration: none;
             transition: color 0.3s;
-         }
+        }
 
 
         a:hover {
             color: #7dd0ff;
-         }
+        }
 
         .sliced {
-           display: inline-block;
+            display: inline-block;
             max-width: 150px;
             overflow: hidden;
             text-overflow: ellipsis;
-             white-space: nowrap;
+            white-space: nowrap;
         }
-         .sliced:hover {
-              overflow: visible;
-              white-space: normal;
-              word-break: break-all;
-           }
 
+        .sliced:hover {
+            overflow: visible;
+            white-space: normal;
+            word-break: break-all;
+        }
+
+        .transaction-hash-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-icon {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            fill: #4ee5ff;
+        }
+
+        .copy-icon:hover {
+            fill: #7dd0ff;
+        }
         .transaction-details {
-          margin-top: 20px;
+            margin-top: 20px;
             background-color: #1a344d;
              padding: 20px;
             border-radius: 10px;
-            border: 1px solid #375067;
+             border: 1px solid #1c3454;
              box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            overflow-x: auto;
-           margin-bottom: 20px;
+           overflow-x: auto;
+             margin-bottom: 20px;
         }
-         .transaction-details h2 {
-            color: #a7e7ff;
-            border-bottom: 1px solid #375067;
-            padding-bottom: 10px;
+        .transaction-details h2 {
+            color: #4ee5ff;
+            border-bottom: 1px solid #1c3454;
+             padding-bottom: 10px;
             margin-bottom: 20px;
-            text-shadow: 0 0 4px #375067;
+             text-shadow: 0 0 4px #0c3560;
              letter-spacing: 1px;
-         }
+        }
         .transaction-details .info-item {
-            margin-bottom: 15px;
+             margin-bottom: 15px;
             display: flex;
             align-items: center;
             font-size: 16px;
             letter-spacing: 1px;
-          }
+        }
          .transaction-details .info-item .label {
-            font-weight: bold;
-           margin-right: 12px;
-           color: #90caf9;
-             text-shadow: 0 0 2px #375067;
-          }
+           font-weight: bold;
+             margin-right: 12px;
+           color: #4ee5ff;
+            text-shadow: 0 0 2px #0c3560;
+        }
+        .limit-select {
+             margin-top: 10px;
+           text-align: center;
+             display: none; /* Initially hidden */
+        }
+        .limit-select button {
+            background-color: #1c3454;
+            color: #4ee5ff;
+           border: none;
+            padding: 10px 15px;
+           border-radius: 6px;
+           cursor: pointer;
+           transition: background-color 0.3s;
+           margin: 0 5px;
+           box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+         .limit-select button:hover{
+            background-color: #4a6985;
+        }
+        .limit-select .selected {
+            background-color: #4ee5ff;
+            color:#050a13;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Solana Account Explorer</h1>
@@ -292,586 +330,537 @@
         <div id="wallet-info" class="wallet-info"></div>
         <div id="token-balances" class="token-list"></div>
         <div id="transaction-history" class="transaction-list"></div>
-       <div id="pagination" class="pagination"></div>
+        <div id="pagination" class="pagination"></div>
          <div id="transaction-details" class="transaction-details"></div>
-
+        <div class="limit-select">
+           <button onclick="changeTransactionLimit(40)">40</button>
+           <button onclick="changeTransactionLimit(100)" class="selected">100</button>
+           <button onclick="changeTransactionLimit('all')">All</button>
+       </div>
     </div>
     <script>
-          const apiUrl = "https://api.devnet.solana.com";
+          const apiUrl = "https://explorer-api.devnet.solana.com/";
+         const explorerApiUrl = "https://explorer.solana.com/tx/";
         const LAMPORTS_PER_SOL = 1000000000;
         let allTransactions = [];
-        let currentPage = 1;
-         const transactionsPerPage = 10;
-          let currentTransactionSignature = null;
+         let currentPage = 1;
+         let transactionsPerPage = 100; // Default 100
+         let currentTransactionSignature = null;
+           async function fetchAccountDetails(walletAddressFromUrl = null) {
+            const walletAddress = walletAddressFromUrl || document.getElementById('walletAddress').value;
+            const walletInfoDiv = document.getElementById('wallet-info');
+            const errorMessageDiv = document.getElementById('error-message');
+             const tokenBalancesDiv = document.getElementById('token-balances');
+           const transactionHistoryDiv = document.getElementById('transaction-history');
+           const paginationDiv = document.getElementById('pagination');
+            const transactionDetailsDiv = document.getElementById('transaction-details');
+            const limitSelectDiv = document.querySelector('.limit-select');
 
-        async function fetchAccountDetails(walletAddressFromUrl = null) {
-             const walletAddress = walletAddressFromUrl || document.getElementById('walletAddress').value;
-             const walletInfoDiv = document.getElementById('wallet-info');
-             const errorMessageDiv = document.getElementById('error-message');
-            const tokenBalancesDiv = document.getElementById('token-balances');
-             const transactionHistoryDiv = document.getElementById('transaction-history');
-             const paginationDiv = document.getElementById('pagination');
-             const transactionDetailsDiv = document.getElementById('transaction-details');
-
-            walletInfoDiv.innerHTML = '';
+           walletInfoDiv.innerHTML = '';
             errorMessageDiv.textContent = '';
             tokenBalancesDiv.innerHTML = '';
              transactionHistoryDiv.innerHTML = '';
-            paginationDiv.innerHTML = '';
-             transactionDetailsDiv.innerHTML = "";
-             currentTransactionSignature = null;
+           paginationDiv.innerHTML = '';
+            transactionDetailsDiv.innerHTML = "";
+            limitSelectDiv.style.display = 'none';
+            currentTransactionSignature = null;
 
             if (!walletAddress) {
-                errorMessageDiv.textContent = "Please enter a wallet or transaction address.";
+                 errorMessageDiv.textContent = "Please enter a wallet or transaction address.";
                 updateUrl('');
                 return;
-           }
-
+            }
             const isWalletAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(walletAddress);
-             if (isWalletAddress) {
-                 try {
-                    // Fetch SOL balance and general account info
+            if (isWalletAddress) {
+                try {
+                   // Fetch SOL balance and general account info
                     const accountInfo = await fetchAccountInfo(walletAddress);
-                     if (accountInfo) {
+                    if (accountInfo) {
                          displayWalletInfo(accountInfo, walletAddress);
-                    }
-
+                         limitSelectDiv.style.display = 'flex';
+                   }
                      // Fetch token balances
-                     const tokenBalances = await fetchTokenBalances(walletAddress);
-                     if (tokenBalances) {
-                        displayTokenBalances(tokenBalances);
-                     }
-
-                     // Fetch all transactions
+                    const tokenBalances = await fetchTokenBalances(walletAddress);
+                    if (tokenBalances && tokenBalances.length > 0) {
+                         displayTokenBalances(tokenBalances);
+                    } else {
+                        tokenBalancesDiv.innerHTML = `<p>No Tokens held</p>`
+                    }
+                    // Fetch all transactions
                      allTransactions = await fetchAllTransactions(walletAddress);
-                     renderTransactions(walletAddress);
-                    updateUrl(walletAddress);
-
-               } catch (error) {
+                    renderTransactions(walletAddress);
+                   updateUrl(walletAddress);
+                } catch (error) {
                     errorMessageDiv.textContent = `Error: ${error.message}`;
                 }
-            } else {
-                try {
-                     // Handle transaction hash
-                     const transactionDetails = await fetchTransactionDetails(walletAddress);
+             } else {
+               try {
+                   // Handle transaction hash
+                    const transactionDetails = await fetchTransactionDetails(walletAddress);
                     if (transactionDetails) {
-                       displayTransactionDetails(transactionDetails);
-                        updateUrl(walletAddress);
-                     } else {
+                         displayTransactionDetails(transactionDetails);
+                         updateUrl(walletAddress);
+                    } else {
                         errorMessageDiv.textContent = `No transaction found for address: ${walletAddress}`;
                        updateUrl('');
-                   }
-                } catch (error) {
-                     errorMessageDiv.textContent = `Error: ${error.message}`;
-                     updateUrl('');
-                }
-           }
-        }
-
-         async function fetchAccountInfo(walletAddress) {
-            const requestBody = {
-                jsonrpc: "2.0",
-                id: 1,
-                method: "getAccountInfo",
-                params: [
-                    walletAddress,
-                   {
-                        encoding: "jsonParsed"
                     }
-                ]
-           };
-             try {
-                const response = await fetch(apiUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                 const data = await response.json();
-                 if (data.error) {
-                     throw new Error(`RPC Error: ${data.error.message}`);
-                }
-               return data.result.value;
-            } catch (error) {
-                console.error("Failed to fetch account info:", error);
-                return null;
+                 } catch (error) {
+                     errorMessageDiv.textContent = `Error: ${error.message}`;
+                   updateUrl('');
+               }
             }
        }
-
-         function displayWalletInfo(accountInfo, walletAddress) {
-           const walletInfoDiv = document.getElementById('wallet-info');
-             let solBalance = 0;
-            let isNative = false;
-                 if (accountInfo && accountInfo.lamports) {
-                     solBalance = accountInfo.lamports / 1000000000;
-                    isNative = accountInfo && accountInfo.data && accountInfo.data.parsed && accountInfo.data.parsed.info && accountInfo.data.parsed.info.isNative;
-                 }
-           let lastTransactionTime = "N/A";
-
-                fetchTransactionHistory(walletAddress).then(transactions =>{
-                    if (transactions && transactions.length > 0) {
-                          const lastTransaction = transactions[0];
-                           lastTransactionTime = lastTransaction && lastTransaction.blockTime ? new Date(lastTransaction.blockTime * 1000).toLocaleString() : "N/A";
-                             walletInfoDiv.innerHTML = `
-                                  <h2>Wallet Information</h2>
-                                     <div class="info-item">
-                                       <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
-                                   </div>
-                                    <div class="info-item">
-                                         <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
-                                   </div>`;
-                       } else {
-                              walletInfoDiv.innerHTML = `
-                                 <h2>Wallet Information</h2>
-                                     <div class="info-item">
-                                        <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
-                                     </div>
-                                     <div class="info-item">
-                                         <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
-                                   </div>`;
-                        }
-                }).catch(error => {
-                      walletInfoDiv.innerHTML = `
-                        <h2>Wallet Information</h2>
-                            <div class="info-item">
-                                    <span class="label">SOL Balance:</span> ${isNative ? solBalance.toFixed(4) + ' SOL' : "N/A"}
-                           </div>
-                             <div class="info-item">
-                                <span class="label">Last Transaction Time:</span>  Error getting last transaction
-                           </div>`;
-                })
+       async function fetchAccountInfo(walletAddress) {
+    const requestBody = {
+        "method": "getMultipleAccounts",
+        "jsonrpc": "2.0",
+        "params": [
+            [walletAddress],
+            {
+                "encoding": "jsonParsed",
+                "commitment": "confirmed"
+            }
+        ],
+        "id": "31c08bb3-374c-4a03-9e02-a86250d79ff4"
+    };
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        if(data.error){
+            throw new Error(`RPC Error: ${data.error.message}`);
         }
 
-        async function fetchTokenBalances(walletAddress) {
-            const requestBody = {
+        if (data.result && data.result.value && data.result.value.length > 0 && data.result.value[0]) {
+           return data.result.value[0];
+       } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Failed to fetch account info:", error);
+        return null;
+    }
+}
+
+
+async function displayWalletInfo(accountInfo, walletAddress) {
+    const walletInfoDiv = document.getElementById('wallet-info');
+    let solBalance = 0;
+
+    if (accountInfo && accountInfo.lamports) {
+        solBalance = accountInfo.lamports / 1000000000;
+    }
+
+
+    let lastTransactionTime = "N/A";
+
+    try {
+        const transactions = await fetchTransactionHistory(walletAddress);
+        if (transactions && transactions.length > 0) {
+           const lastTransaction = transactions[0];
+           lastTransactionTime = lastTransaction && lastTransaction.blockTime ? new Date(lastTransaction.blockTime * 1000).toLocaleString() : "N/A";
+
+        }
+        walletInfoDiv.innerHTML = `
+        <h2>Wallet Information</h2>
+            <div class="info-item">
+                <span class="label">SOL Balance:</span> ${solBalance.toFixed(4)} SOL
+            </div>
+                <div class="info-item">
+                <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
+            </div>`;
+    } catch(error) {
+        walletInfoDiv.innerHTML = `
+            <h2>Wallet Information</h2>
+            <div class="info-item">
+                <span class="label">SOL Balance:</span> ${solBalance.toFixed(4)} SOL
+            </div>
+            <div class="info-item">
+            <span class="label">Last Transaction Time:</span> Error getting last transaction
+            </div>`;
+    }
+}
+async function fetchTokenBalances(walletAddress) {
+    try {
+        const response = await fetch(`${apiUrl}account/${walletAddress}/tokens`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Failed to fetch token balances:", error);
+        return null;
+    }
+}
+
+function displayTokenBalances(tokenAccounts) {
+    const tokenBalancesDiv = document.getElementById('token-balances');
+    if (!tokenAccounts || tokenAccounts.length === 0) {
+        tokenBalancesDiv.innerHTML = `<p>No Tokens held</p>`;
+        return;
+    }
+    let tokensHTML = `<h2>Token Balances</h2>`;
+    for (const account of tokenAccounts) {
+        const amount = account.uiAmount;
+        const mint = account.mint;
+        tokensHTML += `<div class="token-item">
+                                    <span class="label">Mint:</span> ${mint} <br>
+                                   <span class="label">Balance:</span> ${amount}
+                               </div>`;
+    }
+    tokenBalancesDiv.innerHTML = tokensHTML;
+}
+
+
+
+        async function fetchTransactionHistory(walletAddress) {
+           const requestBody = {
                 jsonrpc: "2.0",
-                id: 1,
-                method: "getTokenAccountsByOwner",
+                 id: "609466de-6a04-4d9a-a6e3-63d7c5282d5a",
+                method: "getSignaturesForAddress",
                 params: [
-                    walletAddress,
-                    {
-                        programId: "TokenkegQfeZyiNwAJj5jTNvWjehgPir2pz7uRTpskE" // SPL Token Program ID
-                    },
-                    {
-                        encoding: "jsonParsed"
+                   walletAddress,
+                   {
+                        limit: 5
                    }
                 ]
             };
              try {
                 const response = await fetch(apiUrl, {
                     method: "POST",
-                    headers: {
-                       "Content-Type": "application/json"
+                   headers: {
+                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify(requestBody)
                 });
-
                 if (!response.ok) {
-                   throw new Error(`HTTP error! Status: ${response.status}`);
-                 }
-
-                 const data = await response.json();
-                if (data.error) {
-                    throw new Error(`RPC Error: ${data.error.message}`);
-                 }
-                return data.result.value;
-           } catch (error) {
-               console.error("Failed to fetch token balances:", error);
-               return null;
-           }
-        }
-
-         function displayTokenBalances(tokenAccounts) {
-            const tokenBalancesDiv = document.getElementById('token-balances');
-             if (!tokenAccounts || tokenAccounts.length === 0) {
-                tokenBalancesDiv.innerHTML = `<p>No Tokens held</p>`;
-               return;
-            }
-            let tokensHTML = `<h2>Token Balances</h2>`;
-             for (const account of tokenAccounts) {
-               const tokenInfo = account.account.data.parsed.info;
-               const amount = tokenInfo.tokenAmount.uiAmountString;
-                const mint = tokenInfo.mint;
-                 tokensHTML += `<div class="token-item">
-                                 <span class="label">Mint:</span> ${mint} <br>
-                                   <span class="label">Balance:</span> ${amount}
-                             </div>`;
-             }
-            tokenBalancesDiv.innerHTML = tokensHTML;
-        }
-
-         async function fetchTransactionHistory(walletAddress) {
-           const requestBody = {
-                jsonrpc: "2.0",
-                id: 1,
-                method: "getSignaturesForAddress",
-                params: [
-                    walletAddress,
-                    {
-                        limit: 5
-                    }
-                ]
-           };
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(requestBody)
-                 });
-
-                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                 const data = await response.json();
-                 if (data.error) {
-                    throw new Error(`RPC Error: ${data.error.message}`);
-                }
-                 const transactionSignatures = data.result;
-
-                if (!transactionSignatures || transactionSignatures.length === 0) {
-                   return [];
-                }
-                 // Fetch transaction details for each signature
-                const transactions = await Promise.all(transactionSignatures.map(async (sig) => {
-                    return await fetchTransactionDetails(sig.signature);
-                 }));
-
-                return transactions;
-            } catch (error) {
-               console.error("Failed to fetch transaction history:", error);
-               return null;
-            }
-        }
-
-
-         async function fetchAllTransactions(walletAddress, before = null) {
-             let allTransactions = [];
-            let hasMore = true;
-             let beforeSignature = before;
-            while (hasMore) {
-                const requestBody = {
-                    jsonrpc: "2.0",
-                     id: 1,
-                   method: "getSignaturesForAddress",
-                   params: [
-                        walletAddress,
-                        {
-                           limit: 100,
-                            before: beforeSignature
-                        }
-                    ]
-               };
-                 try {
-                     const response = await fetch(apiUrl, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(requestBody)
-                    });
-
-                    if (!response.ok) {
-                         throw new Error(`HTTP error! Status: ${response.status}`);
-                     }
-                    const data = await response.json();
-                     if (data.error) {
-                         throw new Error(`RPC Error: ${data.error.message}`);
-                    }
-                    const transactionSignatures = data.result;
-
-                   if (!transactionSignatures || transactionSignatures.length === 0) {
-                        hasMore = false;
-                         continue;
-                   }
-                   const transactionDetailsPromises = transactionSignatures.map(sig => fetchTransactionDetails(sig.signature));
-                   const transactionDetails = await Promise.all(transactionDetailsPromises);
-                     allTransactions = allTransactions.concat(transactionDetails);
-                     beforeSignature = transactionSignatures[transactionSignatures.length - 1].signature;
-                 } catch (error) {
-                      console.error("Failed to fetch all transactions:", error);
-                       hasMore = false;
-                }
-           }
-            return allTransactions;
-        }
-
-
-        async function fetchTransactionDetails(signature) {
-           const requestBody = {
-                jsonrpc: "2.0",
-                id: 1,
-                method: "getTransaction",
-                params: [
-                    signature,
-                   {
-                       encoding: "jsonParsed"
-                    }
-               ]
-           };
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-                if (!response.ok) {
-                   throw new Error(`HTTP error! Status: ${response.status}`);
-               }
                 const data = await response.json();
-               if (data.error) {
+                if (data.error) {
                     throw new Error(`RPC Error: ${data.error.message}`);
                 }
                 return data.result;
             } catch (error) {
-                 console.error("Failed to fetch transaction details:", error);
+                console.error("Failed to fetch transaction history:", error);
                 return null;
             }
         }
-
-          function displayTransactionDetails(results) {
-             const transactionDetailsDiv = document.getElementById('transaction-details');
-             transactionDetailsDiv.innerHTML = "";
-              if (!results || !results.transaction || !results.meta ) {
-                   transactionDetailsDiv.innerHTML = `<p>Invalid transaction data</p>`;
-                    return;
-               }
-            const blockTime = new Date(results.blockTime * 1000).toUTCString();
-            let sender = 'N/A';
-           let receiver ='N/A';
-            let amount = 'N/A';
-
-            if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
-               for (const instruction of results.transaction.message.instructions) {
-                   if (instruction.parsed && instruction.parsed.type === "transfer") {
-                        if(instruction.parsed.info && instruction.parsed.info.source) {
-                            sender = instruction.parsed.info.source;
+       async function fetchAllTransactions(walletAddress, before = null) {
+             let allTransactions = [];
+            let hasMore = true;
+             let beforeSignature = before;
+            while (hasMore) {
+               const requestBody = {
+                    jsonrpc: "2.0",
+                    id: "609466de-6a04-4d9a-a6e3-63d7c5282d5a",
+                    method: "getSignaturesForAddress",
+                     params: [
+                         walletAddress,
+                        {
+                            limit: 100,
+                           before: beforeSignature
                        }
-                        if(instruction.parsed.info && instruction.parsed.info.destination) {
-                           receiver = instruction.parsed.info.destination
-                        }
-                       if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
-                              amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
-                       }
-                          break;
-                     }
+                    ]
+                };
+               try {
+                     const response = await fetch(apiUrl, {
+                        method: "POST",
+                       headers: {
+                           "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                     if (data.error) {
+                        throw new Error(`RPC Error: ${data.error.message}`);
+                    }
+                    const transactionSignatures = data.result;
+                     if (!transactionSignatures || transactionSignatures.length === 0) {
+                         hasMore = false;
+                         continue;
+                   }
+                    allTransactions = allTransactions.concat(transactionSignatures);
+                     beforeSignature = transactionSignatures[transactionSignatures.length - 1].signature;
+                } catch (error) {
+                    console.error("Failed to fetch all transactions:", error);
+                     hasMore = false;
+                }
+            }
+            return allTransactions;
+        }
+      async function fetchTransactionDetails(signature) {
+             const requestBody = {
+               jsonrpc: "2.0",
+                 id: "3a0229c2-b950-45ce-9b10-694e987b3498",
+                method: "getTransaction",
+                params: [
+                   signature,
+                    {
+                        "encoding":"jsonParsed",
+                        "commitment":"confirmed",
+                       "maxSupportedTransactionVersion":0
+                   }
+               ]
+           };
+            try {
+               const response = await fetch(apiUrl, {
+                     method: "POST",
+                     headers: {
+                         "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+               });
+                 if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                  }
+               const data = await response.json();
+               if (data.error) {
+                    throw new Error(`RPC Error: ${data.error.message}`);
+                }
+                 return data.result;
+           } catch (error) {
+                 console.error("Failed to fetch transaction details:", error);
+               return null;
            }
-            const gasSpent = results.meta.computeUnitsConsumed;
+        }
+       function displayTransactionDetails(results) {
+            const transactionDetailsDiv = document.getElementById('transaction-details');
+             transactionDetailsDiv.innerHTML = "";
+            if (!results) {
+                transactionDetailsDiv.innerHTML = `<p>Invalid transaction data</p>`;
+                 return;
+            }
+           const blockTime = results.blockTime ? new Date(results.blockTime * 1000).toUTCString() : "N/A";
+            let sender = 'N/A';
+           let receiver = 'N/A';
+            let amount = 'N/A';
+             if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
+                 for (const instruction of results.transaction.message.instructions) {
+                   if (instruction.parsed && instruction.parsed.type === "transfer") {
+                        if(instruction.parsed.info.source) {
+                            sender = instruction.parsed.info.source;
+                        }
+                        if(instruction.parsed.info.destination) {
+                           receiver = instruction.parsed.info.destination;
+                         }
+                         if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
+                            amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+                        }
+                         break;
+                  }
+                }
+            }
+             const gasSpent = results.meta.computeUnitsConsumed;
             const fee = results.meta.fee / LAMPORTS_PER_SOL;
-           const blockNumber = results.slot;
+            const blockNumber = results.slot;
             const confirmationTime = Math.floor((Date.now() / 1000) - results.blockTime);
             const transactionHTML = `
-                <h2>Transaction Details</h2>
-                   <div class="info-item">
-                        <span class="label">Sender Address:</span><a href="/${sender}" onclick="navigateToWallet(event, '${sender}')" class="sliced" title="${sender}">${sender}</a>
+        <h2>Transaction Details</h2>
+<div class="info-item">
+    <span class="label">Sender Address:</span>
+    <div class="transaction-hash-container">
+        <a href="/${sender}" onclick="navigateToWallet(event, '${sender}')" style="color: #4ee5ff; text-decoration: none; display:inline-block;" title="${sender}">${sender}</a>
+        <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${sender}', this)">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+        </svg>
+    </div>
+</div>
+<div class="info-item">
+    <span class="label">Receiver Address:</span>
+    <div class="transaction-hash-container">
+        <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" style="color: #4ee5ff; text-decoration: none; display:inline-block;" title="${receiver}">${receiver}</a>
+        <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${receiver}', this)">
+             <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+        </svg>
+    </div>
+    </div>
                    </div>
-                   <div class="info-item">
-                       <span class="label">Receiver Address:</span> <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" class="sliced" title="${receiver}">${receiver}</a>
-                   </div>
-                     <div class="info-item">
-                       <span class="label">Amount (SOL):</span> ${amount} SOL
-                   </div>
-                     <div class="info-item">
-                         <span class="label">Block Time (UTC):</span> ${blockTime}
-                    </div>
                     <div class="info-item">
-                       <span class="label">Block Number:</span> ${blockNumber}
+                       <span class="label">Amount (SOL):</span> ${amount} SOL
+                  </div>
+                   <div class="info-item">
+                      <span class="label">Block Time (UTC):</span> ${blockTime}
+                  </div>
+                  <div class="info-item">
+                        <span class="label">Block Number:</span> ${blockNumber}
                    </div>
-                     <div class="info-item">
-                       <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
-                   </div>
+                    <div class="info-item">
+                        <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
+                    </div>
                    <div class="info-item">
                         <span class="label">Gas Spent:</span> ${gasSpent}
                     </div>
-                    <div class="info-item">
-                       <span class="label">Fee (SOL):</span> ${fee} SOL
+                   <div class="info-item">
+                        <span class="label">Fee (SOL):</span> ${fee} SOL
                     </div>
                `;
             transactionDetailsDiv.innerHTML = transactionHTML;
         }
+        async function renderTransactions(walletAddress) {
+    const transactionHistoryDiv = document.getElementById('transaction-history');
+    const paginationDiv = document.getElementById('pagination');
+    const transactionDetailsDiv = document.getElementById('transaction-details');
+    
+    transactionHistoryDiv.innerHTML = '';
+    paginationDiv.innerHTML = '';
+    transactionDetailsDiv.innerHTML = "";
+    
+    if (!allTransactions || allTransactions.length === 0) {
+        transactionHistoryDiv.innerHTML = `<p>No Transactions found</p>`;
+        return;
+    }
 
-         function renderTransactions(walletAddress) {
-           const transactionHistoryDiv = document.getElementById('transaction-history');
-           const paginationDiv = document.getElementById('pagination');
-            const transactionDetailsDiv = document.getElementById('transaction-details');
-            transactionHistoryDiv.innerHTML = '';
-            paginationDiv.innerHTML = '';
-           transactionDetailsDiv.innerHTML = "";
-           if (!allTransactions || allTransactions.length === 0) {
-                transactionHistoryDiv.innerHTML = `<p>No Transactions found</p>`;
-                return;
-            }
-           const totalPages = Math.ceil(allTransactions.length / transactionsPerPage);
-            const startIndex = (currentPage - 1) * transactionsPerPage;
-            const endIndex = startIndex + transactionsPerPage;
-            const transactionsToDisplay = allTransactions.slice(startIndex, endIndex);
-           let transactionsHTML = `<h2>Transaction History</h2>
-                                       <table class="transaction-table">
-                                            <thead>
-                                                <tr>
-                                                   <th>Signature</th>
-                                                    <th>Block Time</th>
-                                                    <th>From</th>
-                                                    <th>To</th>
-                                                    <th>Amount</th>
-                                               </tr>
-                                           </thead>
-                                           <tbody>
-                                        `;
-          for (const transaction of transactionsToDisplay) {
-                 if (!transaction || !transaction.transaction || !transaction.meta || !transaction.meta.innerInstructions) continue;
-               const signature = transaction.transaction.signatures[0];
-               const blockTime = transaction.blockTime ? new Date(transaction.blockTime * 1000).toLocaleString() : "Pending";
-                let fromAddress = "Unknown";
-                let toAddress = "Unknown";
-                let amount = "0";
-               const transferDetails = extractTransferDetails(transaction, walletAddress);
-                if (transferDetails) {
-                    fromAddress = transferDetails.fromAddress;
-                    toAddress = transferDetails.toAddress;
-                    amount = transferDetails.amount;
-               }
+    // Create initial table structure
+    transactionHistoryDiv.innerHTML = `
+        <h2>Transaction History</h2>
+        <table class="transaction-table">
+            <thead>
+                <tr>
+                    <th>Signature</th>
+                    <th>Block Time</th>
+                    <th>Status</th>
+                    <th>Sender</th>
+                    <th>Receiver</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="transaction-tbody"></tbody>
+        </table>`;
 
-               transactionsHTML += `<tr>
-                                        <td><a href="/${signature}" onclick="showTransactionDetails(event, '${signature}')" class="sliced" title="${signature}">${signature}</a></td>
-                                       <td>${blockTime}</td>
-                                        <td><a href="/${fromAddress}" onclick="navigateToWallet(event, '${fromAddress}')" class="sliced" title="${fromAddress}">${fromAddress}</a></td>
-                                       <td><a href="/${toAddress}" onclick="navigateToWallet(event, '${toAddress}')" class="sliced" title="${toAddress}">${toAddress}</a></td>
-                                        <td>${amount}</td>
-                                    </tr>`;
-          }
-           transactionsHTML += `</tbody></table>`;
-           transactionHistoryDiv.innerHTML = transactionsHTML;
+    const tbody = document.getElementById('transaction-tbody');
 
-            if (totalPages > 1) {
-                let paginationHTML = "";
-                for (let i = 1; i <= totalPages; i++) {
-                    paginationHTML += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
-                 }
-               paginationDiv.innerHTML = paginationHTML;
-            }
-       }
+    for (let i = 0; i < allTransactions.length; i++) {
+        const transaction = allTransactions[i];
+        if (!transaction || !transaction.signature) continue;
+        
+        const signature = transaction.signature;
+        const blockTime = transaction.blockTime ? new Date(transaction.blockTime * 1000) : null;
+        const formattedBlockTime = blockTime ? blockTime.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZone: 'UTC',
+            timeZoneName: 'short'
+        }) : "Pending";
+        const status = transaction.confirmationStatus === 'finalized' ? 'Finalized' : 'Pending';
+        
+        // Create row with loading state
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="transaction-hash-container">
+                    <a href="/${signature}" onclick="showTransactionDetails(event, '${signature}')" class="sliced" title="${signature}">${signature}</a>
+                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${signature}', this)">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                </div>
+            </td>
+            <td>${formattedBlockTime}</td>
+            <td>${status}</td>
+            <td>Loading...</td>
+            <td>Loading...</td>
+            <td>Loading...</td>`;
+        tbody.appendChild(row);
 
+        // Fetch and update transaction details asynchronously
+        fetchTransactionDetails(signature).then(transactionDetails => {
+            let sender = 'N/A';
+            let receiver = 'N/A';
+            let amount = 'N/A';
 
-        function goToPage(pageNumber) {
-            currentPage = pageNumber;
-             renderTransactions(document.getElementById('walletAddress').value);
-         }
-         function extractTransferDetails(transaction, walletAddress) {
-            if (!transaction || !transaction.meta || !transaction.meta.innerInstructions) {
-                return null;
-           }
-
-            for (const instructionSet of transaction.meta.innerInstructions) {
-               for (const instruction of instructionSet.instructions) {
-                   if (instruction.parsed && instruction.parsed.type === "transfer") {
-                        const info = instruction.parsed.info;
-                        let fromAddress = info.source;
-                         let toAddress = info.destination;
-                       let amount = 0;
-
-                        if(info.lamports) { // For SOL transfers
-                            amount = info.lamports / 1000000000;
-                          if (fromAddress === walletAddress) {
-                                fromAddress = walletAddress;
-                                toAddress = info.destination;
-                            } else {
-                                fromAddress = info.source;
-                                toAddress = walletAddress;
-                           }
-
-                        } else if (info.amount) { // For Token Transfers
-                            amount = info.amount / Math.pow(10, info.decimals);
-
-                            if(fromAddress === walletAddress){
-                                fromAddress = walletAddress;
-                                toAddress = info.destination;
-                             }else {
-                                fromAddress = info.source;
-                               toAddress = walletAddress;
-                             }
+            if (transactionDetails?.transaction?.message?.instructions) {
+                for (const instruction of transactionDetails.transaction.message.instructions) {
+                    if (instruction.parsed?.type === "transfer") {
+                        sender = instruction.parsed.info.source || 'N/A';
+                        receiver = instruction.parsed.info.destination || 'N/A';
+                        if (transactionDetails.meta.preBalances?.[0] && transactionDetails.meta.postBalances?.[0]) {
+                            amount = (transactionDetails.meta.preBalances[0] - transactionDetails.meta.postBalances[0]) / LAMPORTS_PER_SOL;
                         }
-                       return { fromAddress, toAddress, amount: amount.toFixed(4) };
-                   }
-               }
-           }
-
-           if (transaction.transaction.message.instructions) {
-                 for (const instruction of transaction.transaction.message.instructions) {
-                    if (instruction.parsed && instruction.parsed.type === "transfer") {
-                         const info = instruction.parsed.info;
-                          let fromAddress = info.source;
-                        let toAddress = info.destination;
-                        let amount = 0;
-
-                          if(info.lamports) { // For SOL transfers
-                             amount = info.lamports / 1000000000;
-                           if (fromAddress === walletAddress) {
-                                 fromAddress = walletAddress;
-                                toAddress = info.destination;
-                            }else {
-                                 fromAddress = info.source;
-                                 toAddress = walletAddress;
-                           }
-                           } else if (info.amount) { // For Token Transfers
-                             amount =  info.amount / Math.pow(10, info.decimals);
-
-                             if(fromAddress === walletAddress){
-                                 fromAddress = walletAddress;
-                                  toAddress = info.destination;
-                           } else {
-                                  fromAddress = info.source;
-                                  toAddress = walletAddress;
-                             }
-                         }
-                        return { fromAddress, toAddress, amount: amount.toFixed(4) };
+                        break;
                     }
                 }
+            }
+
+            // Update row with fetched data
+            row.children[3].innerHTML = `<a href="/${sender}" onclick="navigateToWallet(event, '${sender}')" class="sliced" title="${sender}">${sender}</a>`;
+            row.children[4].innerHTML = `<a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" class="sliced" title="${receiver}">${receiver}</a>`;
+            row.children[5].textContent = amount;
+        });
+    }
+
+    paginationDiv.innerHTML = "";
+}
+        function goToPage(pageNumber) {
+             currentPage = pageNumber;
+            renderTransactions(document.getElementById('walletAddress').value);
+       }
+       function changeTransactionLimit(limit) {
+            if (limit === 'all') {
+                transactionsPerPage = allTransactions.length;
+           } else {
+                transactionsPerPage = parseInt(limit, 10);
            }
-           return null;
+            currentPage = 1;
+          const limitButtons = document.querySelectorAll('.limit-select button');
+           limitButtons.forEach(button => button.classList.remove('selected'));
+           const selectedButton = document.querySelector(`.limit-select button[onclick="changeTransactionLimit(${limit === 'all' ? "'all'" : limit})"]`);
+          if(selectedButton) {
+               selectedButton.classList.add('selected');
+            }
+           renderTransactions(document.getElementById('walletAddress').value);
        }
 
-       function updateUrl(walletAddress) {
+        function updateUrl(walletAddress) {
             if (walletAddress) {
-                history.pushState(null, null, `/${walletAddress}`);
-            } else {
+               history.pushState(null, null, `/${walletAddress}`);
+           } else {
                 history.pushState(null, null, '/');
            }
-        }
-
-       function navigateToWallet(event, walletAddress) {
-            if(event) {
-                event.preventDefault();
-             }
+       }
+         function navigateToWallet(event, walletAddress) {
+            if (event) {
+                 event.preventDefault();
+            }
            document.getElementById('walletAddress').value = walletAddress;
-           fetchAccountDetails(walletAddress);
+            fetchAccountDetails(walletAddress);
+         }
+        function copyToClipboard(text, element) {
+             navigator.clipboard.writeText(text).then(() => {
+                 element.classList.add('copied');
+                setTimeout(() => {
+                    element.classList.remove('copied');
+                }, 1500)
+            });
         }
-
-          // On page load, parse wallet address from URL
+         // On page load, parse wallet address from URL
         window.onload = function () {
             const path = window.location.pathname;
-           if (path && path.length > 1) {
+             if (path && path.length > 1) {
                const walletAddressFromUrl = path.substring(1);
                document.getElementById('walletAddress').value = walletAddressFromUrl;
                 fetchAccountDetails(walletAddressFromUrl);
-            }
+           }
         }
-
-         async function showTransactionDetails(event, signature) {
-            event.preventDefault();
+        async function showTransactionDetails(event, signature) {
+             event.preventDefault();
             document.getElementById('walletAddress').value = signature;
-             fetchAccountDetails(signature);
+            fetchAccountDetails(signature);
         }
     </script>
 </body>
