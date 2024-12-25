@@ -653,135 +653,184 @@ function displayTokenBalances(tokenAccounts) {
     const confirmationTime = Math.floor((Date.now() / 1000) - results.blockTime);
 
     let transactionInfoHTML = `<h2>Transaction Details</h2>`;
-    let tokenTransfer = null;
+    let tokenTransfers = [];
+    let systemTransfer = null;
+    let totalTokensTransferred = 0;
+    let firstTokenMint = null;
+    let systemSender = 'N/A';
+    let systemReceiver = 'N/A';
 
     if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
         for (const instruction of results.transaction.message.instructions) {
-            if (instruction.parsed && instruction.parsed.type === "transfer" && instruction.program === "spl-token") {
-                tokenTransfer = {
-                    source: instruction.parsed.info.source || 'N/A',
-                    destination: instruction.parsed.info.destination || 'N/A',
-                    amount: instruction.parsed.info.amount,
-                    mint: results.meta.preTokenBalances && results.meta.preTokenBalances.length > 0 ? results.meta.preTokenBalances[0].mint : 'N/A',
-                    preTokenBalances: results.meta.preTokenBalances,
-                    postTokenBalances: results.meta.postTokenBalances
-                };
-                break;
-            }
-        }
-    }
+            if (instruction.parsed && instruction.parsed.type === "transfer") {
+                if (instruction.program === "spl-token") {
+                    const sender = instruction.parsed.info.source || 'N/A';
+                    const receiver = instruction.parsed.info.destination || 'N/A';
+                    const amount = instruction.parsed.info.amount;
+                    let mint = 'N/A';
 
-    if (tokenTransfer) {
-        // Handle Token Transfer
-        let tokenAmount = "N/A";
-        const preBalance = tokenTransfer.preTokenBalances ? tokenTransfer.preTokenBalances.find(balance => balance.mint === tokenTransfer.mint) : null;
-        const postBalance = tokenTransfer.postTokenBalances ? tokenTransfer.postTokenBalances.find(balance => balance.mint === tokenTransfer.mint) : null;
-        if (preBalance && postBalance) {
-            tokenAmount = (postBalance.uiTokenAmount.uiAmount - preBalance.uiTokenAmount.uiAmount).toFixed(preBalance.uiTokenAmount.decimals);
-        }
+                   if (results.meta.preTokenBalances && results.meta.postTokenBalances) {
+                        const preBalance = results.meta.preTokenBalances.find(bal =>
+                             results.transaction.message.accountKeys[bal.accountIndex].pubkey === sender
+                        );
+                      const postBalance = results.meta.postTokenBalances.find(bal =>
+                           results.transaction.message.accountKeys[bal.accountIndex].pubkey === receiver
+                        );
 
+                        if(preBalance && postBalance && preBalance.mint === postBalance.mint) {
+                           mint = preBalance.mint;
 
-        transactionInfoHTML += `
-             <div class="info-item">
-                  <span class="label">Token Mint:</span>
-                    <div class="transaction-hash-container">
-                      <a href="/${tokenTransfer.mint}" onclick="navigateToWallet(event, '${tokenTransfer.mint}')" title="${tokenTransfer.mint}" style="display:inline-block; word-break: break-all;">${tokenTransfer.mint}</a>
-                      <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${tokenTransfer.mint}', this)">
-                       <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                      </svg>
-                    </div>
-                </div>
-             <div class="info-item">
-                 <span class="label">Sender Address:</span>
-                 <div class="transaction-hash-container">
-                     <a href="/${tokenTransfer.source}" onclick="navigateToWallet(event, '${tokenTransfer.source}')" class="sliced" title="${tokenTransfer.source}">${tokenTransfer.source}</a>
-                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${tokenTransfer.source}', this)">
-                      <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                     </svg>
-                </div>
-             </div>
-             <div class="info-item">
-                 <span class="label">Receiver Address:</span>
-                 <div class="transaction-hash-container">
-                     <a href="/${tokenTransfer.destination}" onclick="navigateToWallet(event, '${tokenTransfer.destination}')" class="sliced" title="${tokenTransfer.destination}">${tokenTransfer.destination}</a>
-                     <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${tokenTransfer.destination}', this)">
-                         <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                     </svg>
-                 </div>
-             </div>
-            <div class="info-item">
-                <span class="label">Amount:</span> ${tokenAmount}
-            </div>`;
-    }
-    else {
-        // Fallback to the existing SOL Transfer display
-        let sender = 'N/A';
-        let receiver = 'N/A';
-        let amount = 'N/A';
-        if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
-            for (const instruction of results.transaction.message.instructions) {
-                if (instruction.parsed && instruction.parsed.type === "transfer") {
-                    if (instruction.parsed.info.source) {
-                        sender = instruction.parsed.info.source;
+                            }
+                        else if (preBalance) {
+                              mint = preBalance.mint;
+                         }
+                         else if(postBalance) {
+                              mint = postBalance.mint;
+                         }
                     }
-                    if (instruction.parsed.info.destination) {
-                        receiver = instruction.parsed.info.destination;
+
+
+                    tokenTransfers.push({
+                        sender: sender,
+                        receiver: receiver,
+                        amount: (parseInt(amount) / Math.pow(10, 9)).toFixed(9),
+                         mint : mint
+                    });
+
+                    if(mint && !firstTokenMint) {
+                        firstTokenMint = mint;
                     }
+                    if (results.meta.preTokenBalances && results.meta.postTokenBalances) {
+                            const preBalance = results.meta.preTokenBalances.find(bal =>
+                             results.transaction.message.accountKeys[bal.accountIndex].pubkey === sender
+                            );
+
+                          if (preBalance) {
+                              totalTokensTransferred += parseInt(instruction.parsed.info.amount);
+                           }
+                    }
+                } else if (instruction.program === "system") {
+                    if(instruction.parsed.info.source) {
+                     systemSender = instruction.parsed.info.source;
+                    }
+                      if(instruction.parsed.info.destination) {
+                        systemReceiver = instruction.parsed.info.destination;
+                    }
+
                     if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
-                        amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
-                    }
-                    break;
-                }
+                      const amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+                            systemTransfer = {
+                              sender : systemSender,
+                              receiver : systemReceiver,
+                               amount : amount
+                           }
+                     }
+                 }
             }
         }
-         transactionInfoHTML += `
-                <div class="info-item">
-                   <span class="label">Sender Address:</span>
-                    <div class="transaction-hash-container">
-                        <a href="/${sender}" onclick="navigateToWallet(event, '${sender}')" style="color: #4ee5ff; text-decoration: none; display:inline-block;" title="${sender}">${sender}</a>
-                        <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${sender}', this)">
+    }
+    if (tokenTransfers.length > 0) {
+        transactionInfoHTML += `
+        <div class="info-item">
+              <span class="label">Total Tokens Transferred:</span> <a href="/${firstTokenMint}" onclick="navigateToWallet(event, '${firstTokenMint}')" title="${firstTokenMint}" style="display:inline-block; word-break: break-all; color:#4ee5ff; text-decoration:none;">${(totalTokensTransferred / Math.pow(10, 9)).toFixed(9)} ${firstTokenMint} </a>
+        </div>
+            <h2>Token Transfers</h2>
+           <table class="transaction-table">
+              <thead>
+                 <tr>
+                     <th>Token Mint</th>
+                      <th>Sender</th>
+                      <th>Receiver</th>
+                       <th>Amount</th>
+                  </tr>
+              </thead>
+           <tbody>
+         `;
+           for(const transfer of tokenTransfers) {
+                transactionInfoHTML += `
+                  <tr>
+                  <td>
+                   <div class="transaction-hash-container">
+                       <a href="/${transfer.mint}" onclick="navigateToWallet(event, '${transfer.mint}')" title="${transfer.mint}" style="display:inline-block; word-break: break-all;">${transfer.mint}</a>
+                         <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.mint}', this)">
                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
                          </svg>
                      </div>
+                    </td>
+                      <td>
+                       <div class="transaction-hash-container">
+                         <a href="/${transfer.sender}" onclick="navigateToWallet(event, '${transfer.sender}')"  title="${transfer.sender}" style="display:inline-block; word-break: break-all;">${transfer.sender}</a>
+                          <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.sender}', this)">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                          </svg>
+                        </div>
+                     </td>
+                     <td>
+                      <div class="transaction-hash-container">
+                         <a href="/${transfer.receiver}" onclick="navigateToWallet(event, '${transfer.receiver}')"  title="${transfer.receiver}" style="display:inline-block; word-break: break-all;">${transfer.receiver}</a>
+                         <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.receiver}', this)">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                         </svg>
+                     </div>
+                  </td>
+                 <td>
+                  ${transfer.amount}
+                </td>
+                    </tr>
+                 `;
+          }
+          transactionInfoHTML += `</tbody></table>`;
+    }
+     if(systemTransfer){
+        transactionInfoHTML += `
+           <h2>SOL Transfer</h2>
+               <div class="info-item">
+                   <span class="label">Sender Address:</span>
+                     <div class="transaction-hash-container">
+                      <a href="/${systemTransfer.sender}" onclick="navigateToWallet(event, '${systemTransfer.sender}')" title="${systemTransfer.sender}" style="display:inline-block; word-break: break-all;">${systemTransfer.sender}</a>
+                       <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.sender}', this)">
+                           <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                      </svg>
+                   </div>
                </div>
-                 <div class="info-item">
+                <div class="info-item">
                      <span class="label">Receiver Address:</span>
                      <div class="transaction-hash-container">
-                          <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" style="color: #4ee5ff; text-decoration: none; display:inline-block;" title="${receiver}">${receiver}</a>
-                          <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${receiver}', this)">
-                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                       </svg>
+                       <a href="/${systemTransfer.receiver}" onclick="navigateToWallet(event, '${systemTransfer.receiver}')" title="${systemTransfer.receiver}" style="display:inline-block; word-break: break-all;">${systemTransfer.receiver}</a>
+                         <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.receiver}', this)">
+                             <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                         </svg>
                      </div>
-                 </div>
-               <div class="info-item">
-                    <span class="label">Amount (SOL):</span> ${amount} SOL
-                </div>
+               </div>
+              <div class="info-item">
+                  <span class="label">Amount (SOL):</span> ${systemTransfer.amount} SOL
+              </div>
          `;
-    }
-
-
-
+     }
     transactionInfoHTML += `
-         <div class="info-item">
-             <span class="label">Block Time (UTC):</span> ${blockTime}
-         </div>
-         <div class="info-item">
-               <span class="label">Block Number:</span> ${blockNumber}
-         </div>
-         <div class="info-item">
-               <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
-          </div>
-         <div class="info-item">
-               <span class="label">Gas Spent:</span> ${gasSpent}
-          </div>
+        <div class="info-item">
+            <span class="label">Block Time (UTC):</span> ${blockTime}
+        </div>
+        <div class="info-item">
+              <span class="label">Block Number:</span> ${blockNumber}
+        </div>
           <div class="info-item">
-                <span class="label">Fee (SOL):</span> ${fee} SOL
-           </div>
-    `;
+              <span class="label">Time Since Confirmation (seconds):</span> ${confirmationTime} seconds
+          </div>
+        <div class="info-item">
+            <span class="label">Gas Spent:</span> ${gasSpent}
+        </div>
+        <div class="info-item">
+            <span class="label">Fee (SOL):</span> ${fee} SOL
+        </div>
+   `;
     transactionDetailsDiv.innerHTML = transactionInfoHTML;
 
 }
-        async function renderTransactions(walletAddress) {
+
+
+
+async function renderTransactions(walletAddress) {
     const transactionHistoryDiv = document.getElementById('transaction-history');
     const paginationDiv = document.getElementById('pagination');
     const transactionDetailsDiv = document.getElementById('transaction-details');
@@ -837,7 +886,7 @@ function displayTokenBalances(tokenAccounts) {
         row.innerHTML = `
             <td>
                 <div class="transaction-hash-container">
-                    <a href="/${signature}" onclick="showTransactionDetails(event, '${signature}')" class="sliced" title="${signature}">${signature}</a>
+                    <a href="/${signature}" onclick="showTransactionDetails(event, '${signature}')" title="${signature}" style="display:inline-block; word-break: break-all;">${signature}</a>
                     <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${signature}', this)">
                         <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
                     </svg>
@@ -851,52 +900,75 @@ function displayTokenBalances(tokenAccounts) {
         tbody.appendChild(row);
 
         // Fetch and update transaction details asynchronously
-        fetchTransactionDetails(signature).then(transactionDetails => {
+      fetchTransactionDetails(signature).then(transactionDetails => {
             let sender = 'N/A';
             let receiver = 'N/A';
             let amount = 'N/A';
 
-            if (transactionDetails?.transaction?.message?.instructions) {
-                for (const instruction of transactionDetails.transaction.message.instructions) {
-                    if (instruction.parsed?.type === "transfer") {
+           if (transactionDetails?.transaction?.message?.instructions) {
+             for (const instruction of transactionDetails.transaction.message.instructions) {
+                if (instruction.parsed?.type === "transfer") {
+                      if(instruction.program === "spl-token"){
                         sender = instruction.parsed.info.source || 'N/A';
                         receiver = instruction.parsed.info.destination || 'N/A';
-                        if (transactionDetails.meta.preBalances?.[0] && transactionDetails.meta.postBalances?.[0]) {
-                            amount = (transactionDetails.meta.preBalances[0] - transactionDetails.meta.postBalances[0]) / LAMPORTS_PER_SOL;
-                        }
-                        break;
-                    }
+                         if (transactionDetails.meta.preTokenBalances && transactionDetails.meta.postTokenBalances) {
+                            let preTokenBalance = transactionDetails.meta.preTokenBalances.find(bal => bal.owner === sender);
+                            let postTokenBalance = transactionDetails.meta.postTokenBalances.find(bal => bal.owner === receiver);
+
+                             if(preTokenBalance && postTokenBalance && preTokenBalance.mint === postTokenBalance.mint) {
+                              amount = (postTokenBalance.uiTokenAmount.uiAmount - preTokenBalance.uiTokenAmount.uiAmount).toFixed(preTokenBalance.uiTokenAmount.decimals);
+
+                               } else if (preTokenBalance && !postTokenBalance) {
+                                  amount = `-${preTokenBalance.uiTokenAmount.uiAmount}`
+                              } else if (!preTokenBalance && postTokenBalance) {
+                                 amount = `${postTokenBalance.uiTokenAmount.uiAmount}`;
+                             }
+
+                          }
+                         break;
+                        } else if(instruction.program === "system"){
+
+                          if(instruction.parsed.info.source) {
+                             sender = instruction.parsed.info.source;
+                           }
+                            if(instruction.parsed.info.destination) {
+                              receiver = instruction.parsed.info.destination;
+                            }
+                          if (transactionDetails.meta.preBalances?.[0] && transactionDetails.meta.postBalances?.[0]) {
+                                amount = (transactionDetails.meta.preBalances[0] - transactionDetails.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+                            }
+
+                         break;
+                       }
+
+                   }
+
                 }
             }
 
             // Update row with fetched data
-            row.children[3].innerHTML = `<a href="/${sender}" onclick="navigateToWallet(event, '${sender}')" class="sliced" title="${sender}">${sender}</a>`;
-            row.children[4].innerHTML = `<a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')" class="sliced" title="${receiver}">${receiver}</a>`;
+               row.children[3].innerHTML = `
+                 <div class="transaction-hash-container">
+                     <a href="/${sender}" onclick="navigateToWallet(event, '${sender}')"  title="${sender}" style="display:inline-block; word-break: break-all;">${sender}</a>
+                       <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${sender}', this)">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                         </svg>
+                    </div>
+                 `;
+            row.children[4].innerHTML = `
+                <div class="transaction-hash-container">
+                    <a href="/${receiver}" onclick="navigateToWallet(event, '${receiver}')"  title="${receiver}" style="display:inline-block; word-break: break-all;">${receiver}</a>
+                      <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${receiver}', this)">
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                       </svg>
+                 </div>
+            `;
             row.children[5].textContent = amount;
         });
     }
 
     paginationDiv.innerHTML = "";
 }
-        function goToPage(pageNumber) {
-             currentPage = pageNumber;
-            renderTransactions(document.getElementById('walletAddress').value);
-       }
-       function changeTransactionLimit(limit) {
-            if (limit === 'all') {
-                transactionsPerPage = allTransactions.length;
-           } else {
-                transactionsPerPage = parseInt(limit, 10);
-           }
-            currentPage = 1;
-          const limitButtons = document.querySelectorAll('.limit-select button');
-           limitButtons.forEach(button => button.classList.remove('selected'));
-           const selectedButton = document.querySelector(`.limit-select button[onclick="changeTransactionLimit(${limit === 'all' ? "'all'" : limit})"]`);
-          if(selectedButton) {
-               selectedButton.classList.add('selected');
-            }
-           renderTransactions(document.getElementById('walletAddress').value);
-       }
 
         function updateUrl(walletAddress) {
             if (walletAddress) {
