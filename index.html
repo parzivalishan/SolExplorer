@@ -7,382 +7,467 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solana Account Explorer</title>
-    <style>
-        body {
-            font-family: 'Roboto Mono', monospace;
-            margin: 0;
-            background-color: #0a0a0a;
-            color: #d0d0d0;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+
+<style>
+body {
+    font-family: 'Roboto Mono', monospace;
+    margin: 0;
+    padding: 0; /* Reset body padding */
+    background-color: #0a0a0a;
+    color: #d0d0d0;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+/* Styling for the header container (box) */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+     padding: 10px 20px;
+    background-color: #0a0a0a;
+
+    width: 100%;         /* Make the header full width */
+    margin: 10px auto;      /* margin on top and bottom and auto on sides */
+    max-width: 100%; /* max width 100% so it does not overflow */
+}
+
+#solana-price {
+    color: white;
+    margin: 0;
+    padding: 0;
+    position: static;
+     margin-right: auto;
+}
+    .container {
+        background-color: #1a1a1a;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+        max-width: 1200px;
+        margin: 20px auto;
+        flex: 1;
+        transition: all 0.3s ease-in-out;
+    }
     
-        .container {
-             background-color: #1a1a1a;
-            padding: 30px;
-            border-radius: 8px;
-             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
-            max-width: 1200px;
-            margin: 20px auto;
-            flex: 1;
-            transition: all 0.3s ease-in-out;
-        }
-         .container:empty {
-            display: none;
-            padding: 0;
-            border: none;
-            margin: 0;
-        }
+    .container:empty {
+        display: none;
+        padding: 0;
+        border: none;
+        margin: 0;
+    }
     
-        h1 {
-             text-align: center;
-            margin-bottom: 30px;
-            color: #e0e0e0;
-            text-shadow: 0 0 4px #2b2b2b;
-            letter-spacing: 2px;
-        }
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #e0e0e0;
+        text-shadow: 0 0 4px #2b2b2b;
+        letter-spacing: 2px;
+    }
     
-        input[type="text"] {
-            width: calc(100% - 20px);
-           padding: 12px;
-            margin-bottom: 20px;
-           border: 1px solid #333;
-            border-radius: 6px;
-            background-color: #2a2a2a;
-            color: #c0c0c0;
-            transition: border-color 0.3s;
-            font-size: 16px;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            outline: none;
-        }
+    input[type="text"] {
+        width: calc(100% - 20px);
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #333;
+        border-radius: 6px;
+        background-color: #2a2a2a;
+        color: #c0c0c0;
+        transition: border-color 0.3s;
+        font-size: 16px;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        outline: none;
+    }
     
-        input[type="text"]:focus {
-             border-color: #e0e0e0;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-        }
+    input[type="text"]:focus {
+        border-color: #e0e0e0;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+    }
     
-        button {
-           padding: 12px 25px;
-             background-color: #e0e0e0;
-            color: #1a1a1a;
-             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-             transition: background-color 0.3s, transform 0.1s;
-            font-size: 16px;
-            letter-spacing: 1px;
-             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
+    button {
+        padding: 12px 25px;
+        background-color: #e0e0e0;
+        color: #1a1a1a;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.1s;
+        font-size: 16px;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
     
-        button:hover {
-             background-color: #f0f0f0;
-            transform: scale(1.03);
-        }
+    button:hover {
+        background-color: #f0f0f0;
+        transform: scale(1.03);
+    }
     
-        #error-message {
-             color: #ff7e7e;
-            margin-top: 20px;
-            padding: 12px;
-            background-color: #2a2a2a;
-             border: 1px solid #333;
-            border-radius: 6px;
-            font-size: 16px;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
+    #error-message {
+        color: #ff7e7e;
+        margin-top: 20px;
+        padding: 12px;
+        background-color: #2a2a2a;
+        border: 1px solid #333;
+        border-radius: 6px;
+        font-size: 16px;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
     
-        .wallet-info {
-            margin-top: 25px;
-           background-color: #2a2a2a;
-            padding: 20px;
-            border: 1px solid #333;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin-bottom: 25px;
-             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
-           transition: all 0.3s ease-in-out;
-        }
-        .wallet-info:empty {
-            display: none;
-             padding: 0;
-            border:none;
-            margin: 0;
-        }
+    .wallet-info {
+        margin-top: 25px;
+        background-color: #2a2a2a;
+        padding: 20px;
+        border: 1px solid #333;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 25px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
+        transition: all 0.3s ease-in-out;
+    }
     
-        .wallet-info h2 {
-            color: #e0e0e0;
-             border-bottom: 1px solid #333;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 2px #2b2b2b;
-            letter-spacing: 1px;
-        }
+    .wallet-info:empty {
+        display: none;
+        padding: 0;
+        border: none;
+        margin: 0;
+    }
     
-        .wallet-info .info-item {
-             margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            font-size: 16px;
-             letter-spacing: 1px;
-        }
+    .wallet-info h2 {
+        color: #e0e0e0;
+        border-bottom: 1px solid #333;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 2px #2b2b2b;
+        letter-spacing: 1px;
+    }
     
-         .wallet-info .info-item .label {
-             font-weight: bold;
-            margin-right: 10px;
-            color: #e0e0e0;
-             text-shadow: 0 0 1px #2b2b2b;
-        }
+    .wallet-info .info-item {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
     
-        .token-list {
-             margin-top: 30px;
-            transition: all 0.3s ease-in-out;
-        }
-        .token-list:empty {
-             display: none;
-            padding: 0;
-           border:none;
-           margin: 0;
-        }
+    .wallet-info .info-item .label {
+        font-weight: bold;
+        margin-right: 10px;
+        color: #e0e0e0;
+        text-shadow: 0 0 1px #2b2b2b;
+    }
     
-        .token-list h2 {
-             color: #e0e0e0;
-            border-bottom: 1px solid #333;
-             padding-bottom: 8px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 2px #2b2b2b;
-             letter-spacing: 1px;
-        }
+    .token-item .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
     
-        .token-item {
-            background-color: #333;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            border: 1px solid #333;
-           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-            transition: transform 0.1s;
-        }
+    .token-item .info-item .balance {
+        font-weight: bold;
+        margin-left: 5px;
+    }
     
-        .token-item:hover {
-           transform: scale(1.02);
-        }
+    .transaction-hash-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
     
-        .token-item .label {
-            font-weight: bold;
-            margin-right: 10px;
-             color: #e0e0e0;
-           text-shadow: 0 0 1px #2b2b2b;
-            letter-spacing: 1px;
-        }
+    .token-dropdown {
+        position: relative;
+        display: inline-block;
+        margin-top: 10px;
+        width: 100%;
+    }
     
-        .transaction-list {
-            margin-top: 30px;
-            overflow-x: auto;
-           transition: all 0.3s ease-in-out;
-        }
-         .transaction-list:empty {
-            display: none;
-            padding: 0;
-            border:none;
-             margin: 0;
-        }
+    .token-dropdown-button {
+        background-color: #333;
+        color: #e0e0e0;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+        text-align: left;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
     
-        .transaction-list h2 {
-             color: #e0e0e0;
-            border-bottom: 1px solid #333;
-            padding-bottom: 8px;
-             margin-bottom: 15px;
-            text-shadow: 0 0 2px #2b2b2b;
-            letter-spacing: 1px;
-        }
+    .token-dropdown-button:hover {
+        background-color: #4d4d4d;
+    }
     
-        .transaction-table {
-           width: 100%;
-             border-collapse: collapse;
-            margin-top: 10px;
-            background-color: #333;
-            border: 1px solid #333;
-             border-radius: 8px;
-            overflow-x: auto;
-        }
+    .token-dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #2a2a2a;
+        min-width: 100%;
+        border: 1px solid #333;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        border-radius: 4px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
     
-        .transaction-table th,
-        .transaction-table td {
-            padding: 10px;
-            border: 1px solid #333;
-            text-align: left;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
+    .token-dropdown-item {
+        padding: 10px;
+        border-bottom: 1px solid #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background-color 0.2s ease;
+    }
     
-        .transaction-table th {
-           background-color: #2a2a2a;
-             color: #e0e0e0;
-           text-shadow: 0 0 1px #2b2b2b;
-        }
+    .token-dropdown-item:last-child {
+        border-bottom: none;
+    }
     
-        .pagination {
-             margin-top: 25px;
-            text-align: center;
-        }
+    .token-dropdown-item:hover {
+        background-color: #333;
+    }
     
-        .pagination button {
-           margin: 0 5px;
-            background-color: #333;
-           color: #e0e0e0;
-            border: none;
-             padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            letter-spacing: 1px;
-             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-        }
+    .token-dropdown-item .info-item {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
     
-        .pagination button:hover {
-            background-color: #4d4d4d;
-             transform: scale(1.03);
-        }
+    /* NEW STYLES TO KEEP ELEMENTS ON SAME LINE */
+    .token-dropdown-item .token-line {
+        display: flex; /* Use flexbox */
+        align-items: center; /* Align items vertically in the center */
+        flex-wrap: wrap;
+        width: 100%;
+    }
     
-         .pagination .active {
-           background-color: #e0e0e0;
-             color: #1a1a1a;
-        }
+    .token-dropdown-item .token-line .transaction-hash-container {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.2em;
+    }
     
-         a {
-            color: #e0e0e0;
-           text-decoration: none;
-             transition: color 0.3s;
-        }
+    .transaction-list {
+        margin-top: 30px;
+        overflow-x: auto;
+        transition: all 0.3s ease-in-out;
+    }
     
+    .transaction-list:empty {
+        display: none;
+        padding: 0;
+        border: none;
+        margin: 0;
+    }
     
-        a:hover {
-           color: #f0f0f0;
-        }
+    .transaction-list h2 {
+        color: #e0e0e0;
+        border-bottom: 1px solid #333;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 2px #2b2b2b;
+        letter-spacing: 1px;
+    }
     
-        .sliced {
-            display: inline-block;
-            max-width: 150px;
-           overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+    .transaction-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        background-color: #333;
+        border: 1px solid #333;
+        border-radius: 8px;
+        overflow-x: auto;
+    }
     
-        .sliced:hover {
-             overflow: visible;
-            white-space: normal;
-            word-break: break-all;
-        }
+    .transaction-table th,
+    .transaction-table td {
+        padding: 10px;
+        border: 1px solid #333;
+        text-align: left;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
     
-        .transaction-hash-container {
-            display: flex;
-           align-items: center;
-            gap: 6px;
-        }
+    .transaction-table th {
+        background-color: #2a2a2a;
+        color: #e0e0e0;
+        text-shadow: 0 0 1px #2b2b2b;
+    }
     
-        .copy-icon {
-            cursor: pointer;
-            width: 14px;
-            height: 14px;
-            fill: #e0e0e0;
-        }
+    .pagination {
+        margin-top: 25px;
+        text-align: center;
+    }
     
-        .copy-icon:hover {
-            fill: #f0f0f0;
-        }
+    .pagination button {
+        margin: 0 5px;
+        background-color: #333;
+        color: #e0e0e0;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.1s;
+        letter-spacing: 1px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
     
-        .transaction-details {
-            margin-top: 20px;
-            background-color: #333;
-            padding: 16px;
-            border-radius: 8px;
-           border: 1px solid #333;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
-             overflow-x: auto;
-             margin-bottom: 20px;
-            transition: all 0.3s ease-in-out;
-        }
-        .transaction-details:empty {
-            display: none;
-            padding: 0;
-            border:none;
-            margin: 0;
-        }
+    .pagination button:hover {
+        background-color: #4d4d4d;
+        transform: scale(1.03);
+    }
     
-        .transaction-details h2 {
-             color: #e0e0e0;
-            border-bottom: 1px solid #333;
-            padding-bottom: 8px;
-             margin-bottom: 15px;
-           text-shadow: 0 0 2px #2b2b2b;
-           letter-spacing: 1px;
-        }
+    .pagination .active {
+        background-color: #e0e0e0;
+        color: #1a1a1a;
+    }
     
-        .transaction-details .info-item {
-             margin-bottom: 12px;
-            display: flex;
-           align-items: center;
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
+    a {
+        color: #e0e0e0;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
     
-        .transaction-details .info-item .label {
-            font-weight: bold;
-             margin-right: 10px;
-            color: #e0e0e0;
-            text-shadow: 0 0 1px #2b2b2b;
-        }
-        .sol-transfer-section{
-            margin-bottom: 20px;
-             background-color: #2a2a2a;
-           padding: 20px;
-            border-radius: 8px;
-             box-shadow: 0 3px 6px rgba(0,0,0,0.5);
-            border: 1px solid #333;
-        }
-         .token-transfer-section{
-           margin-bottom: 20px;
-           background-color: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.5);
-            border: 1px solid #333;
-        }
+    a:hover {
+        color: #f0f0f0;
+    }
     
-        .limit-select {
-            margin-top: 10px;
-            text-align: center;
-            display: none;
-        }
+    .sliced {
+        display: inline-block;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
     
-        .limit-select button {
-            background-color: #333;
-            color: #e0e0e0;
-            border: none;
-           padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin: 0 4px;
-             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-        }
+    .sliced:hover {
+        overflow: visible;
+        white-space: normal;
+        word-break: break-all;
+    }
     
-        .limit-select button:hover {
-             background-color: #4d4d4d;
-        }
+    .transaction-hash-container {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
     
-        .limit-select .selected {
-            background-color: #e0e0e0;
-           color:#1a1a1a;
-        }
+    .copy-icon {
+        cursor: pointer;
+        width: 14px;
+        height: 14px;
+        fill: #e0e0e0;
+    }
     
-    </style>
+    .copy-icon:hover {
+        fill: #f0f0f0;
+    }
+    
+    .transaction-details {
+        margin-top: 20px;
+        background-color: #333;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
+        overflow-x: auto;
+        margin-bottom: 20px;
+        transition: all 0.3s ease-in-out;
+    }
+    
+    .transaction-details:empty {
+        display: none;
+        padding: 0;
+        border: none;
+        margin: 0;
+    }
+    
+    .transaction-details h2 {
+        color: #e0e0e0;
+        border-bottom: 1px solid #333;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        text-shadow: 0 0 2px #2b2b2b;
+        letter-spacing: 1px;
+    }
+    
+    .transaction-details .info-item {
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+    
+    .transaction-details .info-item .label {
+        font-weight: bold;
+        margin-right: 10px;
+        color: #e0e0e0;
+        text-shadow: 0 0 1px #2b2b2b;
+    }
+    
+    .sol-transfer-section {
+        margin-bottom: 20px;
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+        border: 1px solid #333;
+    }
+    
+    .token-transfer-section {
+        margin-bottom: 20px;
+        background-color: #2a2a2a;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+        border: 1px solid #333;
+    }
+    
+    .limit-select {
+        margin-top: 10px;
+        text-align: center;
+        display: none;
+    }
+    
+    .limit-select button {
+        background-color: #333;
+        color: #e0e0e0;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin: 0 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+    
+    .limit-select button:hover {
+        background-color: #4d4d4d;
+    }
+    
+    .limit-select .selected {
+        background-color: #e0e0e0;
+        color: #1a1a1a;
+    }
+
+</style>
 </head>
 
 <body>
+
+    <header>
+        <div id="solana-price"></div>
+       
+    </header>
+
     <div class="container">
         <h1>Solana Account Explorer</h1>
         <input type="text" id="walletAddress" placeholder="Enter Solana Wallet/Transaction Address (Devnet)">
@@ -400,6 +485,43 @@
        </div>
     </div>
     <script>
+
+async function fetchSolanaPrice() {
+    try {
+        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return parseFloat(data.price); // Return the price as a number
+    } catch (error) {
+        console.error("Failed to fetch Solana price:", error);
+        return null; // Return null if the fetch fails
+    }
+}
+
+async function updateSolanaPriceDisplay() {
+    const solanaPriceElement = document.getElementById('solana-price');
+    if (!solanaPriceElement) {
+       console.error("Element with id 'solana-price' not found");
+         return;
+   }
+
+    const price = await fetchSolanaPrice();
+    if (price !== null) {
+        solanaPriceElement.textContent = `SOL Price: $${price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits: 2})}`;
+    }else{
+        solanaPriceElement.textContent = "Failed to fetch SOL price";
+    }
+}
+
+// Initial price update when the page loads
+updateSolanaPriceDisplay();
+
+//Set interval to update the price every 15 seconds
+setInterval(updateSolanaPriceDisplay, 15000);
+
+
           const apiUrl = "https://explorer-api.devnet.solana.com/";
          const explorerApiUrl = "https://explorer.solana.com/tx/";
         const LAMPORTS_PER_SOL = 1000000000;
@@ -606,67 +728,92 @@ async function fetchTokenBalances(walletAddress) {
         return [];
     }
 }
-
-
- async function displayTokenBalances(tokenAccounts) {
+async function displayTokenBalances(tokenAccounts) {
     const tokenBalancesDiv = document.getElementById('token-balances');
-    tokenBalancesDiv.innerHTML = "";  //Clear previous content
-     if (!tokenAccounts || tokenAccounts.length === 0) {
+    tokenBalancesDiv.innerHTML = "";  // Clear previous content
+
+    if (!tokenAccounts || tokenAccounts.length === 0) {
         tokenBalancesDiv.innerHTML = `<p>No Tokens held</p>`;
         return;
     }
 
-    let tokensHTML = `<h2>Token Balances</h2>`;
-        for (const accountData of tokenAccounts) {
-         const account = accountData.account;
+    let tokensHTML = `
+        <h2>Token Balances</h2>
+        <div class="token-dropdown">
+            <button class="token-dropdown-button">
+                ${tokenAccounts.length} ${tokenAccounts.length === 1 ? 'Token' : 'Tokens'} Held
+            </button>
+            <div class="token-dropdown-content">
+    `;
 
-        if (!account || !account.data || !account.data.parsed || !account.data.parsed.info) {
+    for (const accountData of tokenAccounts) {
+        const account = accountData.account;
+
+         if (!account || !account.data || !account.data.parsed || !account.data.parsed.info) {
             console.warn("Skipping invalid account data", accountData);
             continue;
         }
-
         const mint = account.data.parsed.info.mint;
         const amount = account.data.parsed.info.tokenAmount?.uiAmount;
-       try {
+        const formattedAmount = typeof amount === 'number' ? amount.toLocaleString(undefined, { maximumFractionDigits: 9 }) : amount;
+
+
+        try {
             const tokenName = await fetchTokenName(mint);
-              tokensHTML += `
-                <div class="token-item">
-                <div class="info-item">
-                <span class="label">Name:</span>
-                   <a href="/${mint}" onclick="navigateToWallet(event, '${mint}')" title="${mint}" style="display:inline-block; word-break: break-all;">${tokenName}</a>
-                 </div>
-                      <div class="info-item">
-                       <span class="label">Mint:</span>
-                           <div class="transaction-hash-container">
-                              <a href="/${mint}" onclick="navigateToWallet(event, '${mint}')" title="${mint}" style="display:inline-block; word-break: break-all;">${mint}</a>
-                                <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${mint}', this)">
-                                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                                </svg>
-                           </div>
-                     </div>
-                     <div class="info-item">
-                       <span class="label">Balance:</span> ${amount}
-                     </div>
-                </div>`;
-        } catch (error) {
-              console.error("Failed to fetch token name or display token info", error);
-                  tokensHTML += `
-                     <div class="token-item">
-                         <div class="info-item">
-                            <span class="label">Mint:</span> ${mint}
+             tokensHTML += `
+                     <div class="token-dropdown-item">
+                            <span class="token-line">
+                                <span class="label">${tokenName} (</span>
+                                <div class="transaction-hash-container">
+                                    <a href="/${mint}" onclick="navigateToWallet(event, '${mint}')" title="${mint}" style="display:inline-block; word-break: break-all; text-decoration: none;">${mint}</a>
+                                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${mint}', this)">
+                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                    </svg>
+                                </div>
+                                <span class="label">) :</span>
+                                <span class="balance">${formattedAmount}</span>
+                           </span>
+                       </div>
+                `;
+          } catch (error) {
+               console.error("Failed to fetch token name or display token info", error);
+                    tokensHTML += `
+                        <div class="token-dropdown-item">
+                             <span class="token-line">
+                                   <span class="label"> Mint : </span>
+                                  <div class="transaction-hash-container">
+                                       <a href="/${mint}" onclick="navigateToWallet(event, '${mint}')" title="${mint}" style="display:inline-block; word-break: break-all; text-decoration: none;">${mint}</a>
+                                        <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${mint}', this)">
+                                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                          </svg>
+                                  </div>
+                                  <span class="label">) :</span>
+                                  <span class="balance">${formattedAmount}</span>
+                            </span>
                          </div>
-                         <div class="info-item">
-                            <span class="label">Balance:</span> ${amount}
-                         </div>
-                     </div>`;
-        }
+                `;
+          }
 
+    }
 
-      }
-
-
+    tokensHTML += `</div></div>`;
     tokenBalancesDiv.innerHTML = tokensHTML;
 
+    // Add event listener to the button to toggle dropdown
+    const dropdownButton = tokenBalancesDiv.querySelector('.token-dropdown-button');
+    dropdownButton.addEventListener('click', function() {
+      const dropdownContent = this.nextElementSibling;
+      dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
+    document.addEventListener('click', function(event) {
+          if (!event.target.closest('.token-dropdown')) {
+              const dropdownContent = tokenBalancesDiv.querySelector('.token-dropdown-content');
+                if(dropdownContent){
+                    dropdownContent.style.display = 'none';
+                }
+
+          }
+      });
 }
 async function fetchTokenName(mintAddress) {
     const requestBody = {
@@ -697,6 +844,8 @@ async function fetchTokenName(mintAddress) {
         return mintAddress;
     }
 }
+
+
 
 
         async function fetchTransactionHistory(walletAddress) {
