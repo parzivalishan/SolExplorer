@@ -935,32 +935,55 @@ async function displayWalletInfo(accountInfo, walletAddress) {
         solBalance = accountInfo.lamports / 1000000000;
     }
 
-
     let lastTransactionTime = "N/A";
 
     try {
         const transactions = await fetchTransactionHistory(walletAddress);
         if (transactions && transactions.length > 0) {
-           const lastTransaction = transactions[0];
-           lastTransactionTime = lastTransaction && lastTransaction.blockTime ? new Date(lastTransaction.blockTime * 1000).toLocaleString() : "N/A";
-
+            const lastTransaction = transactions[0];
+            lastTransactionTime = lastTransaction && lastTransaction.blockTime ? new Date(lastTransaction.blockTime * 1000).toLocaleString() : "N/A";
         }
-        walletInfoDiv.innerHTML = `
-        <h2>Wallet Information</h2>
-            <div class="info-item">
-                <span class="label">SOL Balance:</span> ${solBalance.toFixed(4)} SOL
-            </div>
-                <div class="info-item">
-                <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
-            </div>`;
-    } catch(error) {
+
         walletInfoDiv.innerHTML = `
             <h2>Wallet Information</h2>
+            <div class="info-item wallet-address-item">
+                <span class="label">Wallet Address:</span>
+                <span id="walletAddressDisplay">${walletAddress}</span>
+                 <div class="action-buttons">
+                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${walletAddress}', this)">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
+                    </svg>
+                    <svg class="bookmark-icon" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  onclick="bookmarkTransaction('${walletAddress}')">
+                       <path  d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" fill="#fff"/>
+                    </svg>
+                 </div>
+            </div>
             <div class="info-item">
                 <span class="label">SOL Balance:</span> ${solBalance.toFixed(4)} SOL
             </div>
             <div class="info-item">
-            <span class="label">Last Transaction Time:</span> Error getting last transaction
+                <span class="label">Last Transaction Time:</span> ${lastTransactionTime}
+            </div>`;
+    } catch (error) {
+        walletInfoDiv.innerHTML = `
+            <h2>Wallet Information</h2>
+            <div class="info-item wallet-address-item">
+                <span class="label">Wallet Address:</span>
+                <span id="walletAddressDisplay">${walletAddress}</span>
+                 <div class="action-buttons">
+                  <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${walletAddress}', this)">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
+                   </svg>
+                   <svg class="bookmark-icon" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  onclick="bookmarkTransaction('${walletAddress}')">
+                     <path  d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" fill="#fff"/>
+                   </svg>
+                  </div>
+            </div>
+            <div class="info-item">
+                <span class="label">SOL Balance:</span> ${solBalance.toFixed(4)} SOL
+            </div>
+            <div class="info-item">
+                <span class="label">Last Transaction Time:</span> Error getting last transaction
             </div>`;
     }
 }
@@ -1516,7 +1539,20 @@ async function fetchTokenName(mintAddress) {
     transactionDetailsDiv.innerHTML = transactionInfoHTML;
 }
 
-function bookmarkTransaction(transactionHash) {
+function bookmarkTransaction(identifier) {
+  // Heuristic to differentiate between wallet address and transaction hash
+  const isLikelyTransactionHash = /^[a-fA-F0-9]{40,}$/.test(identifier);
+  const isLikelyWalletAddress = /^[a-zA-Z0-9]{30,45}$/.test(identifier);
+  const promptTitle = isLikelyTransactionHash
+      ? 'Enter a name for this transaction:'
+      : isLikelyWalletAddress
+        ? 'Enter a name for this Wallet:'
+        :'Enter a name for this Transaction Hash:'
+
+  const defaultValue = isLikelyTransactionHash
+      ? identifier.substring(0, 10) + '...'
+      : identifier;
+
     // Create modal overlay for centering
     const modalOverlay = document.createElement('div');
     modalOverlay.style.cssText = `
@@ -1530,49 +1566,54 @@ function bookmarkTransaction(transactionHash) {
         justify-content: center;
         background: rgba(0, 0, 0, 0.5);
     `;
-    
+
     // Create modal container
     const modalContainer = document.createElement('div');
     modalContainer.className = 'modal-content';
-    
+
     // Add modal content
     modalContainer.innerHTML = `
-        <h3>Enter a name for this transaction</h3>
-        <input 
-            type="text" 
-            id="txNameInput" 
-            value="${transactionHash.substring(0, 10)}..."
+        <h3>${promptTitle}</h3>
+        <input
+            type="text"
+            id="txNameInput"
+            value="${defaultValue}"
         >
         <div class="modal-buttons">
             <button id="cancelBtn">Cancel</button>
             <button id="saveBtn">Save</button>
         </div>
     `;
-    
+
     // Add modal to overlay, then overlay to document
     modalOverlay.appendChild(modalContainer);
     document.body.appendChild(modalOverlay);
-    
+
     // Focus the input
     const input = modalContainer.querySelector('#txNameInput');
     input.focus();
     input.select();
-    
+
     // Handle save
     const handleSave = () => {
         const transactionName = input.value.trim();
         if (transactionName) {
-            addBookmark(transactionHash, transactionHash, transactionName);
+             // For Wallet address, we may use a different addBookmark function, if we have it
+            if(isLikelyWalletAddress) {
+              addBookmark(identifier, identifier, transactionName)
+            } else {
+              addBookmark(identifier, identifier, transactionName);
+            }
         }
         modalOverlay.remove();
     };
-    
+
     // Event listeners
     modalContainer.querySelector('#saveBtn').addEventListener('click', handleSave);
     modalContainer.querySelector('#cancelBtn').addEventListener('click', () => {
         modalOverlay.remove();
     });
-    
+
     // Handle Enter key
     input.addEventListener('keyup', (e) => {
         if (e.key === 'Enter') handleSave();
