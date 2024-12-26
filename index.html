@@ -638,7 +638,6 @@ function displayTokenBalances(tokenAccounts) {
                return null;
            }
         }
-
         async function displayTransactionDetails(results) {
     const transactionDetailsDiv = document.getElementById('transaction-details');
     transactionDetailsDiv.innerHTML = "";
@@ -663,10 +662,8 @@ function displayTokenBalances(tokenAccounts) {
         timeZoneName: 'short'
     }) : "N/A";
 
-
-     const timeSinceConfirmationSeconds = Math.floor((Date.now() / 1000) - results.blockTime);
-
-     let timeSinceConfirmation = "";
+    const timeSinceConfirmationSeconds = Math.floor((Date.now() / 1000) - results.blockTime);
+    let timeSinceConfirmation = "";
 
     if (timeSinceConfirmationSeconds < 60) {
         timeSinceConfirmation = `${timeSinceConfirmationSeconds} seconds ago`;
@@ -674,15 +671,14 @@ function displayTokenBalances(tokenAccounts) {
         const minutes = Math.floor(timeSinceConfirmationSeconds / 60);
         timeSinceConfirmation = `${minutes} mins ago`;
     } else if (timeSinceConfirmationSeconds < 86400) {
-         const hours = Math.floor(timeSinceConfirmationSeconds / 3600);
+        const hours = Math.floor(timeSinceConfirmationSeconds / 3600);
         const minutes = Math.floor((timeSinceConfirmationSeconds % 3600) / 60);
         timeSinceConfirmation = `${hours} hours and ${minutes} mins ago`;
     } else {
         const days = Math.floor(timeSinceConfirmationSeconds / 86400);
         const hours = Math.floor((timeSinceConfirmationSeconds % 86400) / 3600);
-         timeSinceConfirmation = `${days} days and ${hours} hours ago`;
+        timeSinceConfirmation = `${days} days and ${hours} hours ago`;
     }
-
 
     let transactionInfoHTML = `<h2>Transaction Details</h2>`;
     let transfers = [];
@@ -691,81 +687,75 @@ function displayTokenBalances(tokenAccounts) {
     let firstTokenMint = null;
     let systemSender = 'N/A';
     let systemReceiver = 'N/A';
-
-     let hasSplTokenTransfer = false; // Flag to check if there is any spl-token transfer
+    let firstSigner = results?.transaction?.message?.accountKeys?.[0]?.pubkey || 'N/A';
 
     if (results.transaction && results.transaction.message && results.transaction.message.instructions) {
         for (const instruction of results.transaction.message.instructions) {
             if (instruction.parsed && (instruction.parsed.type === "transfer" || instruction.parsed.type === "transferChecked")) {
-                  let sender = 'N/A';
+                let sender = 'N/A';
                 let receiver = 'N/A';
                 let amount = 'N/A';
                 let mint = 'N/A';
 
-               if (instruction.program === "spl-token") {
-                     hasSplTokenTransfer = true;  // Set the flag because of spl token transfer
-                    sender = instruction.parsed.info.source || 'N/A';
-                    receiver = instruction.parsed.info.destination || 'N/A';
+                if (instruction.program === "spl-token") {
+                    if (instruction.parsed?.type === "transferChecked" && instruction.parsed.info.multisigAuthority) {
+                        sender = instruction.parsed.info.multisigAuthority;
+                    } else {
+                        sender = firstSigner;
+                    }
+
                     mint = instruction.parsed.info.mint || 'N/A';
                     if (instruction.parsed?.type === "transferChecked") {
-                         amount = instruction.parsed.info.tokenAmount?.uiAmount || 'N/A';
-                            if(amount !== 'N/A'){
-                              totalTokensTransferred += parseFloat(amount);
-                            }
-                    }
-                     else {
-                       amount = instruction.parsed.info.amount || 'N/A';
+                        amount = instruction.parsed.info.tokenAmount?.uiAmount || 'N/A';
                         if(amount !== 'N/A'){
-                            totalTokensTransferred += parseInt(amount) ;
+                            totalTokensTransferred += parseFloat(amount);
                         }
-                     }
-                      if (results.meta.preTokenBalances && results.meta.postTokenBalances) {
-                        const preBalance = results.meta.preTokenBalances.find(bal =>
-                             results.transaction.message.accountKeys[bal.accountIndex].pubkey === sender
-                        );
-                        const postBalance = results.meta.postTokenBalances.find(bal =>
-                             results.transaction.message.accountKeys[bal.accountIndex].pubkey === receiver
-                        );
-
-                        if(preBalance && postBalance && preBalance.mint === postBalance.mint) {
-                            mint = preBalance.mint;
-                        }
-                        else if (preBalance) {
-                             mint = preBalance.mint;
-                        }
-                        else if (postBalance) {
-                            mint = postBalance.mint;
+                    } else {
+                        amount = instruction.parsed.info.amount || 'N/A';
+                        if(amount !== 'N/A'){
+                            totalTokensTransferred += parseInt(amount);
                         }
                     }
 
-                }
-                 else if (instruction.program === "system") {
-                    if (instruction.parsed.info.source) {
-                       systemSender = instruction.parsed.info.source;
-                         sender = instruction.parsed.info.source;
+                    if (results.meta.preTokenBalances && results.meta.postTokenBalances) {
+                        const destinationAccount = instruction.parsed.info.destination;
+                        const receiverBalance = results.meta.postTokenBalances.find(bal => 
+                            results.transaction.message.accountKeys[bal.accountIndex].pubkey === destinationAccount
+                        );
+
+                        if (receiverBalance) {
+                            receiver = receiverBalance.owner;
+                            mint = receiverBalance.mint;
                         }
+                    }
+                } else if (instruction.program === "system") {
+                    if (instruction.parsed.info.source) {
+                        systemSender = instruction.parsed.info.source;
+                        sender = instruction.parsed.info.source;
+                    }
                     if (instruction.parsed.info.destination) {
-                      systemReceiver = instruction.parsed.info.destination;
-                      receiver = instruction.parsed.info.destination;
-                     }
+                        systemReceiver = instruction.parsed.info.destination;
+                        receiver = instruction.parsed.info.destination;
+                    }
                     if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
-                         amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
-                            systemTransfer = {
-                               sender : systemSender,
-                                receiver : systemReceiver,
-                                amount : amount
-                            }
-                     }
-                  }
+                        amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+                        systemTransfer = {
+                            sender: systemSender,
+                            receiver: systemReceiver,
+                            amount: amount
+                        }
+                    }
+                }
+
                 transfers.push({
                     sender: sender,
                     receiver: receiver,
-                     amount: amount,
-                     mint: mint
+                    amount: amount,
+                    mint: mint
                 });
-                 if (mint && !firstTokenMint) {
-                        firstTokenMint = mint;
-                 }
+                if (mint && !firstTokenMint) {
+                    firstTokenMint = mint;
+                }
             }
         }
     }
@@ -794,121 +784,110 @@ function displayTokenBalances(tokenAccounts) {
             }
 
             const data = await response.json();
-              return data?.result?.content?.metadata?.name || mintAddress;
-
+            return data?.result?.content?.metadata?.name || mintAddress;
         } catch (error) {
             console.error("Failed to fetch token name:", error);
             return mintAddress;
         }
     };
 
-
-
-    if (hasSplTokenTransfer) {
-         let firstTokenName = await fetchTokenName(firstTokenMint);
-        const formattedTotal =  parseFloat(totalTokensTransferred.toFixed(9)).toString();
-         transactionInfoHTML += `
+    if (transfers.length > 0) {
+        let firstTokenName = await fetchTokenName(firstTokenMint);
+        const formattedTotal = parseFloat(totalTokensTransferred.toFixed(9)).toString();
+        transactionInfoHTML += `
         <div class="info-item">
-              <span class="label">Total Tokens Transferred:</span> <a href="/${firstTokenMint}" onclick="navigateToWallet(event, '${firstTokenMint}')" title="${firstTokenMint}" style="display:inline-block; word-break: break-all; color:#4ee5ff; text-decoration:none;">${formattedTotal} ${firstTokenName} </a>
+            <span class="label">Total Tokens Transferred:</span> <a href="/${firstTokenMint}" onclick="navigateToWallet(event, '${firstTokenMint}')" title="${firstTokenMint}" style="display:inline-block; word-break: break-all; color:#4ee5ff; text-decoration:none;">${formattedTotal} ${firstTokenName} </a>
         </div>
-            <h2>Transfers</h2>
-           <table class="transaction-table">
-              <thead>
-                 <tr>
-                     <th>Token Mint</th>
-                      <th>Sender</th>
-                      <th>Receiver</th>
-                       <th>Amount</th>
-                  </tr>
-              </thead>
-           <tbody>
-         `;
-           for (const transfer of transfers) {
-              const tokenName = await fetchTokenName(transfer.mint);
-               transactionInfoHTML += `
-                  <tr>
-                  <td>
-                   <div class="transaction-hash-container">
-                       <a href="/${transfer.mint}" onclick="navigateToWallet(event, '${transfer.mint}')" title="${transfer.mint}" style="display:inline-block; word-break: break-all;">${tokenName} (${transfer.mint})</a>
-                         <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.mint}', this)">
-                           <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                         </svg>
-                     </div>
-                    </td>
-                      <td>
-                       <div class="transaction-hash-container">
-                         <a href="/${transfer.sender}" onclick="navigateToWallet(event, '${transfer.sender}')"  title="${transfer.sender}" style="display:inline-block; word-break: break-all;">${transfer.sender}</a>
-                          <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.sender}', this)">
-                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                          </svg>
+        <h2>Transfers</h2>
+        <table class="transaction-table">
+            <thead>
+                <tr>
+                    <th>Token Mint</th>
+                    <th>Sender</th>
+                    <th>Receiver</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+        for (const transfer of transfers) {
+            const tokenName = await fetchTokenName(transfer.mint);
+            transactionInfoHTML += `
+                <tr>
+                    <td>
+                        <div class="transaction-hash-container">
+                            <a href="/${transfer.mint}" onclick="navigateToWallet(event, '${transfer.mint}')" title="${transfer.mint}" style="display:inline-block; word-break: break-all;">${tokenName} (${transfer.mint})</a>
+                            <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.mint}', this)">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
                         </div>
-                     </td>
-                     <td>
-                      <div class="transaction-hash-container">
-                         <a href="/${transfer.receiver}" onclick="navigateToWallet(event, '${transfer.receiver}')"  title="${transfer.receiver}" style="display:inline-block; word-break: break-all;">${transfer.receiver}</a>
-                         <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.receiver}', this)">
-                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                         </svg>
-                     </div>
-                  </td>
-                 <td>
-                  ${transfer.amount}
-                </td>
-                    </tr>
-                 `;
-           }
-          transactionInfoHTML += `</tbody></table>`;
-      }
+                    </td>
+                    <td>
+                        <div class="transaction-hash-container">
+                            <a href="/${transfer.sender}" onclick="navigateToWallet(event, '${transfer.sender}')" title="${transfer.sender}" style="display:inline-block; word-break: break-all;">${transfer.sender}</a>
+                            <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.sender}', this)">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="transaction-hash-container">
+                            <a href="/${transfer.receiver}" onclick="navigateToWallet(event, '${transfer.receiver}')" title="${transfer.receiver}" style="display:inline-block; word-break: break-all;">${transfer.receiver}</a>
+                            <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.receiver}', this)">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
+                        </div>
+                    </td>
+                    <td>
+                        ${transfer.amount}
+                    </td>
+                </tr>
+            `;
+        }
+        transactionInfoHTML += `</tbody></table>`;
+    }
+
     if (systemTransfer) {
         transactionInfoHTML += `
-           <h2>SOL Transfer</h2>
-               <div class="info-item">
-                   <span class="label">Sender Address:</span>
-                     <div class="transaction-hash-container">
-                      <a href="/${systemTransfer.sender}" onclick="navigateToWallet(event, '${systemTransfer.sender}')" title="${systemTransfer.sender}" style="display:inline-block; word-break: break-all;">${systemTransfer.sender}</a>
-                       <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.sender}', this)">
-                           <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                      </svg>
-                   </div>
-               </div>
-                <div class="info-item">
-                     <span class="label">Receiver Address:</span>
-                     <div class="transaction-hash-container">
-                       <a href="/${systemTransfer.receiver}" onclick="navigateToWallet(event, '${systemTransfer.receiver}')" title="${systemTransfer.receiver}" style="display:inline-block; word-break: break-all;">${systemTransfer.receiver}</a>
-                         <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.receiver}', this)">
-                             <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                         </svg>
-                     </div>
-               </div>
-              <div class="info-item">
-                  <span class="label">Amount (SOL):</span> ${systemTransfer.amount} SOL
-              </div>
-         `;
-    }
-     transactionInfoHTML += `
-        <div class="info-item">
-            <span class="label" style="display: block; margin-bottom: 5px;">Block & Timestamp:</span>
-              <div style=" border: 1px solid #1c3454; border-radius: 8px; padding: 10px; margin-bottom:10px;">
-                <div class="info-item">
-                    <span class="label" style="display:inline; margin-right:5px;">Block Number:</span>${blockNumber}
-                 </div>
-                 <div class="info-item">
-                    <span class="label" style="display:inline; margin-right:5px;">Time Since Confirmation:</span>${timeSinceConfirmation}
-                 </div>
-                 <div class="info-item">
-                    <span class="label" style="display:inline; margin-right:5px;">Confirmation Time:</span>${confirmationTime}
-                  </div>
+            <h2>SOL Transfer</h2>
+            <div class="info-item">
+                <span class="label">Sender Address:</span>
+                <div class="transaction-hash-container">
+                    <a href="/${systemTransfer.sender}" onclick="navigateToWallet(event, '${systemTransfer.sender}')" title="${systemTransfer.sender}" style="display:inline-block; word-break: break-all;">${systemTransfer.sender}</a>
+                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.sender}', this)">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
                 </div>
-           </div>
-           <div  class="info-item" style=" border: 1px solid #1c3454; border-radius: 8px; padding: 10px;">
-            <span class="label"  style="display:inline; margin-right:5px;">Gas Spent & Fee (SOL):</span> ${gasSpent} | ${fee.toFixed(9)} SOL
-           </div>
-   `;
+            </div>
+            <div class="info-item">
+                <span class="label">Receiver Address:</span>
+                <div class="transaction-hash-container">
+                    <a href="/${systemTransfer.receiver}" onclick="navigateToWallet(event, '${systemTransfer.receiver}')" title="${systemTransfer.receiver}" style="display:inline-block; word-break: break-all;">${systemTransfer.receiver}</a>
+                    <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.receiver}', this)">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="info-item">
+                <span class="label">Amount (SOL):</span> ${systemTransfer.amount} SOL
+            </div>
+        `;
+    }
+
+    transactionInfoHTML += `
+        <div class="info-item">
+            <span class="label">Block & Timestamp:</span><br>
+            <span style="margin-left:20px;">${blockNumber}</span><br>
+            <span style="margin-left:20px;">${timeSinceConfirmation}</span><br>
+            <span style="margin-left:20px;">${confirmationTime}</span>
+        </div>
+        <div class="info-item">
+            <span class="label">Gas Spent & Fee (SOL):</span> ${gasSpent} | ${fee.toFixed(9)} SOL
+        </div>
+    `;
+
     transactionDetailsDiv.innerHTML = transactionInfoHTML;
-
 }
-
-
 
 
 
@@ -983,36 +962,48 @@ async function renderTransactions(walletAddress) {
 
         // Fetch and update transaction details asynchronously
         fetchTransactionDetails(signature).then(async transactionDetails => {
-            let source = 'N/A';
+
+             let source = 'N/A';
             let destination = 'N/A';
             let mint = 'N/A';
             let amount = 'N/A';
             let isSolTransfer = false;
             let tokenName = 'N/A';
-
-             if (transactionDetails?.transaction?.message?.instructions) {
-                 for (const instruction of transactionDetails.transaction.message.instructions) {
+            let firstSigner = transactionDetails?.transaction?.message?.accountKeys?.[0]?.pubkey || 'N/A';
+            if (transactionDetails?.transaction?.message?.instructions) {
+                  for (const instruction of transactionDetails.transaction.message.instructions) {
                     if (instruction.parsed?.type === "transfer" || instruction.parsed?.type === "transferChecked") {
                         if(instruction.program === "spl-token"){
-                            source = instruction.parsed.info.source || 'N/A';
-                            destination = instruction.parsed.info.destination || 'N/A';
+
+                                if (instruction.parsed?.type === "transferChecked" && instruction.parsed.info.multisigAuthority) {
+                                    source = instruction.parsed.info.multisigAuthority;
+                                 } else {
+                                    source = firstSigner;
+                                }
+
+
                             mint = instruction.parsed.info.mint || 'N/A';
-
-
                             if (instruction.parsed?.type === "transferChecked") {
                                 amount = instruction.parsed.info.tokenAmount?.uiAmount || 'N/A';
-
-                             }
-                            else {
-                              amount = instruction.parsed.info.amount || 'N/A';
+                            } else {
+                                amount = instruction.parsed.info.amount || 'N/A';
                             }
                             if (mint !== 'N/A'){
-                             tokenName =  await fetchTokenName(mint);
+                                tokenName =  await fetchTokenName(mint);
+                            }
+                            if (transactionDetails.meta.preTokenBalances && transactionDetails.meta.postTokenBalances) {
+                                const destinationAccount = instruction.parsed.info.destination;
+                                const receiverBalance = transactionDetails.meta.postTokenBalances.find(bal =>
+                                transactionDetails.transaction.message.accountKeys[bal.accountIndex].pubkey === destinationAccount
+                             );
+
+                                if (receiverBalance) {
+                                  destination = receiverBalance.owner;
+                                }
                             }
 
                             break;
-                        }
-                         else if(instruction.program === "system"){
+                        } else if(instruction.program === "system"){
 
                              if(instruction.parsed.info.source) {
                                   source = instruction.parsed.info.source;
@@ -1027,15 +1018,15 @@ async function renderTransactions(walletAddress) {
                               }
                             break;
                        }
-                  }
 
+                     }
                 }
             }
 
 
 
             // Update row with fetched data
-            row.children[3].innerHTML = `
+           row.children[3].innerHTML = `
                  <div class="transaction-hash-container">
                      <a href="/${source}" onclick="navigateToWallet(event, '${source}')"  title="${source}" style="display:inline-block; word-break: break-all;">${source}</a>
                        <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${source}', this)">
