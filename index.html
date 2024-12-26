@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,6 +42,146 @@ header {
     position: static;
      margin-right: auto;
 }
+
+#bookmark-icon{
+         width: 20px;
+         height: 20px;
+         fill: #e0e0e0;
+         cursor: pointer;
+         margin-right: 20px;
+         transition: fill 0.2s ease-in-out;
+         padding: 5px;
+         border-radius: 5px;
+         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+     }
+     #bookmark-icon:hover{
+         fill: #f0f0f0;
+         background-color: #333;
+     }
+     #bookmark-view{
+         position: absolute;
+         top: 60px;
+         right: 20px;
+         background-color: #2a2a2a;
+         padding: 15px;
+         border-radius: 8px;
+         border: 1px solid #333;
+         z-index: 10;
+         max-height: 400px;
+         overflow-y: auto;
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+         display: none;
+     }
+
+     #bookmark-view h2{
+         color: #e0e0e0;
+         border-bottom: 1px solid #333;
+         padding-bottom: 8px;
+         margin-bottom: 15px;
+         text-shadow: 0 0 2px #2b2b2b;
+         letter-spacing: 1px;
+         text-align: center;
+     }
+     .bookmark-item {
+         padding: 8px;
+         border-bottom: 1px solid #333;
+         transition: background-color 0.2s ease-in-out;
+     }
+
+     .bookmark-item:last-child {
+         border-bottom: none;
+     }
+
+     .bookmark-item:hover{
+         background-color: #333;
+     }
+
+     .bookmark-title {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         flex-wrap: wrap;
+     }
+
+     .bookmark-action-buttons button{
+          padding: 5px 10px;
+          background-color: #333;
+         color: #e0e0e0;
+         border: none;
+         border-radius: 4px;
+         cursor: pointer;
+         transition: background-color 0.3s;
+         margin: 0 4px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+     }
+     .bookmark-action-buttons button:hover {
+         background-color: #4d4d4d;
+     }
+     /*Modal Style*/
+     .modal {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(0, 0, 0, 0.5);
+         display: flex;
+         justify-content: center;
+         align-items: center;
+          z-index: 1000;
+     }
+
+     .modal-content {
+         background-color: #2a2a2a;
+          padding: 20px;
+         border-radius: 8px;
+          border: 1px solid #333;
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+     }
+     .modal-button-container {
+         text-align: center;
+         margin-top: 20px;
+     }
+     .modal-button-container button{
+        padding: 10px 15px;
+          background-color: #e0e0e0;
+         color: #1a1a1a;
+         border: none;
+         border-radius: 6px;
+         cursor: pointer;
+         transition: background-color 0.3s, transform 0.1s;
+          font-size: 14px;
+             letter-spacing: 1px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+             margin: 0 5px;
+     }
+     .modal-button-container button:hover {
+         background-color: #f0f0f0;
+         transform: scale(1.03);
+     }
+     .modal-content input[type="text"]{
+         width: calc(100% - 20px);
+             padding: 12px;
+             margin-bottom: 20px;
+             border: 1px solid #333;
+             border-radius: 6px;
+             background-color: #2a2a2a;
+             color: #c0c0c0;
+             transition: border-color 0.3s;
+             font-size: 16px;
+             letter-spacing: 1px;
+             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+             outline: none;
+     }
+     .modal-content label{
+          color: #e0e0e0;
+          display: block;
+          margin-bottom: 5px;
+     }
+
+
+
+
     .container {
         background-color: #1a1a1a;
         padding: 30px;
@@ -359,17 +500,22 @@ header {
         gap: 6px;
     }
     
-    .copy-icon {
-        cursor: pointer;
-        width: 14px;
-        height: 14px;
-        fill: #e0e0e0;
-    }
-    
-    .copy-icon:hover {
-        fill: #f0f0f0;
-    }
-    
+    .transaction-hash-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.copy-icon, .bookmark-icon {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin: 0px;
+    padding: 0px;
+}
+.copy-icon:hover, .bookmark-icon:hover {
+    fill: #ddd;
+}
     .transaction-details {
         margin-top: 20px;
         background-color: #333;
@@ -465,7 +611,9 @@ header {
 
     <header>
         <div id="solana-price"></div>
-       
+        <svg id="bookmark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="displayBookmarks()">
+            <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+        </svg>
     </header>
 
     <div class="container">
@@ -485,6 +633,139 @@ header {
        </div>
     </div>
     <script>
+
+ const BOOKMARK_KEY = "solanaBookmarks";
+
+ function getBookmarks() {
+     try {
+         const bookmarksJSON = localStorage.getItem(BOOKMARK_KEY);
+         return bookmarksJSON ? JSON.parse(bookmarksJSON) : {};
+     } catch (error) {
+         console.error("Error getting bookmarks from localStorage:", error);
+         return {};
+     }
+ }
+
+ function saveBookmarks(bookmarks) {
+     try {
+         localStorage.setItem(BOOKMARK_KEY, JSON.stringify(bookmarks));
+     } catch (error) {
+          console.error("Error saving bookmarks to localStorage:", error);
+     }
+ }
+
+ function addBookmark(key, value, name) {
+     const bookmarks = getBookmarks();
+     bookmarks[key] = { value, name};
+     saveBookmarks(bookmarks);
+ }
+
+ function deleteBookmark(key) {
+     const bookmarks = getBookmarks();
+     delete bookmarks[key];
+     saveBookmarks(bookmarks);
+ }
+ function renameBookmark(key, newName) {
+     const bookmarks = getBookmarks();
+     if (bookmarks[key]) {
+         bookmarks[key].name = newName;
+         saveBookmarks(bookmarks);
+     }
+ }
+
+ function clearBookmarks() {
+     saveBookmarks({});
+ }
+
+ function displayBookmarks() {
+     const bookmarks = getBookmarks();
+     const header = document.querySelector('header');
+     let bookmarkDiv = document.getElementById('bookmark-view');
+
+     if (bookmarkDiv) {
+         bookmarkDiv.remove();
+     }
+
+     bookmarkDiv = document.createElement('div');
+     bookmarkDiv.id = 'bookmark-view';
+
+     if (Object.keys(bookmarks).length === 0) {
+         bookmarkDiv.textContent = 'No Bookmarks Saved';
+     } else {
+          let html = `<h2>Bookmarked Items</h2>`;
+          for (const key in bookmarks) {
+             const bookmark = bookmarks[key];
+              html += `
+                  <div class="bookmark-item">
+                     <div class = "bookmark-title">
+                     <span>${bookmark.name}</span>
+                         <div class="bookmark-action-buttons">
+                             <button onclick="openBookmark('${bookmark.value}')">Open</button>
+                             <button onclick="renameBookmarkModal('${key}', '${bookmark.name}')">Rename</button>
+                             <button onclick="deleteBookmarkModal('${key}')">Delete</button>
+                         </div>
+                     </div>
+                  </div>`;
+             }
+             bookmarkDiv.innerHTML = html;
+         }
+          header.appendChild(bookmarkDiv);
+         bookmarkDiv.style.display = 'block';
+        document.addEventListener('click', function(event){
+           if(!event.target.closest('#bookmark-view') && !event.target.closest('#bookmark-icon') ) {
+              bookmarkDiv.style.display = 'none';
+           }
+          })
+ }
+
+
+ function openBookmark(value) {
+     // navigate to the url
+      navigateToWallet(null, value);
+      document.getElementById('bookmark-view').style.display = 'none';
+ }
+
+ function deleteBookmarkModal(key) {
+     const modal = document.createElement('div');
+     modal.classList.add('modal');
+      modal.innerHTML = `
+         <div class="modal-content">
+             <p>Are you sure you want to delete this bookmark?</p>
+             <div class = "modal-button-container">
+                <button onclick="deleteBookmark('${key}'); closeModal()">Yes</button>
+                 <button onclick="closeModal()">No</button>
+             </div>
+         </div>
+     `;
+     document.body.appendChild(modal);
+ }
+
+ function renameBookmarkModal(key, currentName) {
+     const modal = document.createElement('div');
+     modal.classList.add('modal');
+      modal.innerHTML = `
+         <div class="modal-content">
+             <label for="renameInput">New Name:</label>
+             <input type="text" id="renameInput" value="${currentName}">
+              <div class = "modal-button-container">
+                 <button onclick="renameBookmark('${key}', document.getElementById('renameInput').value); closeModal();">Save</button>
+                <button onclick="closeModal()">Cancel</button>
+              </div>
+         </div>
+     `;
+     document.body.appendChild(modal);
+     document.getElementById('renameInput').focus();
+ }
+
+
+ function closeModal() {
+    const modal = document.querySelector('.modal');
+     if (modal) {
+         modal.remove();
+    }
+      displayBookmarks();
+ }
+
 
 async function fetchSolanaPrice() {
     try {
@@ -971,6 +1252,7 @@ async function fetchTokenName(mintAddress) {
         return;
     }
 
+    const transactionHash = results.transaction.signatures[0]
     const blockTime = results.blockTime ? new Date(results.blockTime * 1000) : null;
     const gasSpent = results.meta.computeUnitsConsumed;
     const fee = results.meta.fee / LAMPORTS_PER_SOL;
@@ -1004,7 +1286,21 @@ async function fetchTokenName(mintAddress) {
         timeSinceConfirmation = `${days} days and ${hours} hours ago`;
     }
 
-    let transactionInfoHTML = `<h2>Transaction Details</h2>`;
+    let transactionInfoHTML = `
+    <div class="sol-transfer-section">
+        <h2>Transaction Details</h2>
+         <div class="transaction-hash-container">
+              <a href="/${transactionHash}" onclick="navigateToWallet(event, '${transactionHash}')" title="${transactionHash}" style="display:inline-block; word-break: break-all;">${transactionHash}</a>
+            <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transactionHash}', this)">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
+            </svg>
+             <svg class="bookmark-icon" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  onclick="bookmarkTransaction('${transactionHash}')">
+               <path  d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" fill="#fff"/>
+             </svg>
+        </div>
+    </div>
+    </div>
+    `;
     let tokenTransfers = [];
     let systemTransfer = null;
     let totalTokensTransferred = 0;
@@ -1071,7 +1367,7 @@ async function fetchTokenName(mintAddress) {
                         receiver = instruction.parsed.info.destination;
                     }
                     if (results.meta.preBalances && results.meta.postBalances && results.meta.preBalances.length > 0 && results.meta.postBalances.length > 0) {
-                         amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+                        amount = (results.meta.preBalances[0] - results.meta.postBalances[0]) / LAMPORTS_PER_SOL;
                         systemTransfer = {
                             sender: systemSender,
                             receiver: systemReceiver,
@@ -1082,7 +1378,7 @@ async function fetchTokenName(mintAddress) {
             }
         }
     }
-     // Function to fetch token name using the existing API
+    // Function to fetch token name using the existing API
     const fetchTokenName = async (mintAddress) => {
         const requestBody = {
             "jsonrpc": "2.0",
@@ -1116,7 +1412,7 @@ async function fetchTokenName(mintAddress) {
         let firstTokenName = await fetchTokenName(firstTokenMint);
         const formattedTotal = parseFloat(totalTokensTransferred.toFixed(9)).toString();
         transactionInfoHTML += `
-            <div class="info-item">
+            <div class="sol-transfer-section">
             <span class="label">Total Tokens Transferred:</span> <a href="/${firstTokenMint}" onclick="navigateToWallet(event, '${firstTokenMint}')" title="${firstTokenMint}" style="display:inline-block; word-break: break-all; color:#e0e0e0; text-decoration:none;">${formattedTotal} ${firstTokenName} </a>
             </div>
             <div class="token-transfer-section">
@@ -1140,33 +1436,35 @@ async function fetchTokenName(mintAddress) {
                             <div class="transaction-hash-container">
                                 <a href="/${transfer.mint}" onclick="navigateToWallet(event, '${transfer.mint}')" title="${transfer.mint}" style="display:inline-block; word-break: break-all;">${tokenName} (${transfer.mint})</a>
                                 <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.mint}', this)">
-                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
                                 </svg>
                             </div>
                         </td>
                         <td>
                             <div class="transaction-hash-container">
                                 <a href="/${transfer.sender}" onclick="navigateToWallet(event, '${transfer.sender}')" title="${transfer.sender}" style="display:inline-block; word-break: break-all;">${transfer.sender}</a>
-                                <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.sender}', this)">
-                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                 <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.sender}', this)">
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
                                 </svg>
                             </div>
                         </td>
                         <td>
                              <div class="transaction-hash-container">
                                 <a href="/${transfer.receiver}" onclick="navigateToWallet(event, '${transfer.receiver}')" title="${transfer.receiver}" style="display:inline-block; word-break: break-all;">${transfer.receiver}</a>
-                                <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.receiver}', this)">
-                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                 <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${transfer.receiver}', this)">
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
                                 </svg>
                             </div>
                         </td>
                          <td>
+                         <div class="transaction-hash-container">
                             ${transfer.amount}
+                            </div>
                         </td>
                     </tr>
             `;
         }
-         transactionInfoHTML += `</tbody></table></div>`;
+        transactionInfoHTML += `</tbody></table></div>`;
     }
     if (systemTransfer) {
         transactionInfoHTML += `
@@ -1177,7 +1475,7 @@ async function fetchTokenName(mintAddress) {
                      <div class="transaction-hash-container">
                         <a href="/${systemTransfer.sender}" onclick="navigateToWallet(event, '${systemTransfer.sender}')" title="${systemTransfer.sender}" style="display:inline-block; word-break: break-all;">${systemTransfer.sender}</a>
                          <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.sender}', this)">
-                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
                         </svg>
                     </div>
                 </div>
@@ -1186,18 +1484,22 @@ async function fetchTokenName(mintAddress) {
                      <div class="transaction-hash-container">
                         <a href="/${systemTransfer.receiver}" onclick="navigateToWallet(event, '${systemTransfer.receiver}')" title="${systemTransfer.receiver}" style="display:inline-block; word-break: break-all;">${systemTransfer.receiver}</a>
                        <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${systemTransfer.receiver}', this)">
-                           <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                           <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="#fff"/>
                         </svg>
                      </div>
                  </div>
                  <div class="info-item">
-                    <span class="label">Amount (SOL):</span> ${systemTransfer.amount} SOL
+                   <span class="label">Amount (SOL):</span>
+                    <div class="transaction-hash-container">
+                        ${systemTransfer.amount} SOL
+                    </div>
                 </div>
             </div>
         `;
     }
 
-   transactionInfoHTML += `
+    transactionInfoHTML += `
+        <div class="sol-transfer-section">
         <div class="info-item">
             <span class="label">Block & Timestamp:</span><br>
             <span style="margin-left:20px;">${blockNumber}</span><br>
@@ -1207,12 +1509,83 @@ async function fetchTokenName(mintAddress) {
         <div class="info-item">
             <span class="label">Gas Spent & Fee (SOL):</span> ${gasSpent} | ${fee.toFixed(9)} SOL
         </div>
+        </div>
     `;
 
 
     transactionDetailsDiv.innerHTML = transactionInfoHTML;
 }
 
+function bookmarkTransaction(transactionHash) {
+    // Create modal overlay for centering
+    const modalOverlay = document.createElement('div');
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.5);
+    `;
+    
+    // Create modal container
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-content';
+    
+    // Add modal content
+    modalContainer.innerHTML = `
+        <h3>Enter a name for this transaction</h3>
+        <input 
+            type="text" 
+            id="txNameInput" 
+            value="${transactionHash.substring(0, 10)}..."
+        >
+        <div class="modal-buttons">
+            <button id="cancelBtn">Cancel</button>
+            <button id="saveBtn">Save</button>
+        </div>
+    `;
+    
+    // Add modal to overlay, then overlay to document
+    modalOverlay.appendChild(modalContainer);
+    document.body.appendChild(modalOverlay);
+    
+    // Focus the input
+    const input = modalContainer.querySelector('#txNameInput');
+    input.focus();
+    input.select();
+    
+    // Handle save
+    const handleSave = () => {
+        const transactionName = input.value.trim();
+        if (transactionName) {
+            addBookmark(transactionHash, transactionHash, transactionName);
+        }
+        modalOverlay.remove();
+    };
+    
+    // Event listeners
+    modalContainer.querySelector('#saveBtn').addEventListener('click', handleSave);
+    modalContainer.querySelector('#cancelBtn').addEventListener('click', () => {
+        modalOverlay.remove();
+    });
+    
+    // Handle Enter key
+    input.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') handleSave();
+        if (e.key === 'Escape') modalOverlay.remove();
+    });
+
+    // Close modal if clicking outside
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            modalOverlay.remove();
+        }
+    });
+}
 async function renderTransactions(walletAddress) {
     const transactionHistoryDiv = document.getElementById('transaction-history');
     const paginationDiv = document.getElementById('pagination');
