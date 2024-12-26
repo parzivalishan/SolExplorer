@@ -561,38 +561,142 @@ async function displayWalletInfo(accountInfo, walletAddress) {
             </div>`;
     }
 }
+
 async function fetchTokenBalances(walletAddress) {
+    const requestBody = {
+        "method": "getTokenAccountsByOwner",
+        "jsonrpc": "2.0",
+        "params": [
+            walletAddress,
+            {
+                "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            },
+            {
+                "encoding": "jsonParsed",
+                "commitment": "processed"
+            }
+        ],
+        "id": "a0235608-7a3b-4c2b-b2c7-79e5f57200a1" // you can generate a unique ID for each request if needed
+    };
+
     try {
-        const response = await fetch(`${apiUrl}account/${walletAddress}/tokens`);
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        return data;
+         if(data.error){
+            throw new Error(`RPC Error: ${data.error.message}`);
+        }
+        if (data.result && data.result.value) {
+            return data.result.value;
+        } else {
+            return [];
+        }
+
     } catch (error) {
-        console.error("Failed to fetch token balances:", error);
-        return null;
+        console.error("Failed to fetch token accounts:", error);
+        return [];
     }
 }
 
-function displayTokenBalances(tokenAccounts) {
+
+ async function displayTokenBalances(tokenAccounts) {
     const tokenBalancesDiv = document.getElementById('token-balances');
-    if (!tokenAccounts || tokenAccounts.length === 0) {
+    tokenBalancesDiv.innerHTML = "";  //Clear previous content
+     if (!tokenAccounts || tokenAccounts.length === 0) {
         tokenBalancesDiv.innerHTML = `<p>No Tokens held</p>`;
         return;
     }
-    let tokensHTML = `<h2>Token Balances</h2>`;
-    for (const account of tokenAccounts) {
-        const amount = account.uiAmount;
-        const mint = account.mint;
-        tokensHTML += `<div class="token-item">
-                                    <span class="label">Mint:</span> ${mint} <br>
-                                   <span class="label">Balance:</span> ${amount}
-                               </div>`;
-    }
-    tokenBalancesDiv.innerHTML = tokensHTML;
-}
 
+    let tokensHTML = `<h2>Token Balances</h2>`;
+        for (const accountData of tokenAccounts) {
+         const account = accountData.account;
+
+        if (!account || !account.data || !account.data.parsed || !account.data.parsed.info) {
+            console.warn("Skipping invalid account data", accountData);
+            continue;
+        }
+
+        const mint = account.data.parsed.info.mint;
+        const amount = account.data.parsed.info.tokenAmount?.uiAmount;
+       try {
+            const tokenName = await fetchTokenName(mint);
+              tokensHTML += `
+                <div class="token-item">
+                <div class="info-item">
+                <span class="label">Name:</span>
+                   <a href="/${mint}" onclick="navigateToWallet(event, '${mint}')" title="${mint}" style="display:inline-block; word-break: break-all;">${tokenName}</a>
+                 </div>
+                      <div class="info-item">
+                       <span class="label">Mint:</span>
+                           <div class="transaction-hash-container">
+                              <a href="/${mint}" onclick="navigateToWallet(event, '${mint}')" title="${mint}" style="display:inline-block; word-break: break-all;">${mint}</a>
+                                <svg class="copy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" onclick="copyToClipboard('${mint}', this)">
+                                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                </svg>
+                           </div>
+                     </div>
+                     <div class="info-item">
+                       <span class="label">Balance:</span> ${amount}
+                     </div>
+                </div>`;
+        } catch (error) {
+              console.error("Failed to fetch token name or display token info", error);
+                  tokensHTML += `
+                     <div class="token-item">
+                         <div class="info-item">
+                            <span class="label">Mint:</span> ${mint}
+                         </div>
+                         <div class="info-item">
+                            <span class="label">Balance:</span> ${amount}
+                         </div>
+                     </div>`;
+        }
+
+
+      }
+
+
+    tokenBalancesDiv.innerHTML = tokensHTML;
+
+}
+async function fetchTokenName(mintAddress) {
+    const requestBody = {
+        "jsonrpc": "2.0",
+        "id": "1",
+        "method": "getAsset",
+        "params": {
+            "id": mintAddress
+        }
+    };
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data?.result?.content?.metadata?.name || mintAddress;
+    } catch (error) {
+        console.error("Failed to fetch token name:", error);
+        return mintAddress;
+    }
+}
 
 
         async function fetchTransactionHistory(walletAddress) {
